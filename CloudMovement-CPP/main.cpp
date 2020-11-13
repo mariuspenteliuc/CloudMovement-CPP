@@ -23,5 +23,17 @@ int main(int argc, const char * argv[]) {
     srand (static_cast <unsigned> (time(0)));
     std::cout << "OpenCV version: " << OpticalFlowService::getOpenCVVersion() << endl;
 
+//    OpticalFlowService ofService;
+//    ofService.computeFlowForImages(DEBUG_IN, DEBUG_OUT, "jpg", true, true, false);
+
+    //TODO: add function to load and overlay flows from disk.
+
+    Scene scene = Scene(100, 100);
+    scene.addRandomBoid();
+    scene.addRandomBoid();
+    scene.addRandomBoid();
+    scene.addRandomBoid();
+    cout << scene.getBoidsCount() << endl;
+    
     return 0;
 }
