@@ -20,6 +20,7 @@ const static string DEBUG_IN = "/Users/mariuspenteliuc/Assets/PhD/debug/debug_in
 const static string DEBUG_OUT = "/Users/mariuspenteliuc/Assets/PhD/debug/debug_out";
 
 int main(int argc, const char * argv[]) {
+    srand (static_cast <unsigned> (time(0)));
     std::cout << "OpenCV version: " << OpticalFlowService::getOpenCVVersion() << endl;
 
     return 0;
