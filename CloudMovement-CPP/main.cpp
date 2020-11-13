@@ -24,14 +24,3 @@ int main(int argc, const char * argv[]) {
 
     return 0;
 }
-
-
-
-//    Mat img = imread("/Users/mariuspenteliuc/Desktop/image.png"); //Change the image path here.
-//        if (img.data == 0) {
-//            cerr << "Image not found!" << endl;
-//            return -1;
-//        }
-//    namedWindow("image", WINDOW_AUTOSIZE);
-//        imshow("image", img);
-//        waitKey();
