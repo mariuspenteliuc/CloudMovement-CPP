@@ -24,11 +24,14 @@ private:
 
     static void initAtPosition(float x, float y);
     cv::Point2f getDistanceTo(Boid boid);
+    friend std::ostream& operator<<(std::ostream& os, const Boid& boid);
 protected:
 public:
     Boid();
     static float getDistanceBetween(Boid firstBoid, Boid secondBoid);
     static Boid initWithinConstraint(int x, int y);
+    std::string const&  to_str() const;
+    cv::Point2f getPosition();
 };
 
 #endif /* Boid_hpp */
