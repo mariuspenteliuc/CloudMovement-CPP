@@ -36,8 +36,7 @@ int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath
     cv::String path(inputPath + "/*." + fileType);
     cv::glob(path,fileNames,false);
     cv::Mat im1 = cv::imread(fileNames[0]);
-    for (size_t k=1; k<fileNames.size(); ++k)
-    {
+    for (size_t k=1; k<fileNames.size(); ++k) {
          cv::Mat im2 = cv::imread(fileNames[k]);
          if (im1.empty() || im2.empty()) continue; //only proceed if sucsessful
 
@@ -95,8 +94,7 @@ cv::Mat OpticalFlowService::overlayFlowLines(cv::Mat flow, cv::Mat image) {
 
 void OpticalFlowService::drawOpticalFlowMap(const cv::Mat& flow, cv::Mat& cflowmap, int step, double, const cv::Scalar& color) {
     for(int y = 0; y < cflowmap.rows; y += step)
-        for(int x = 0; x < cflowmap.cols; x += step)
-        {
+        for(int x = 0; x < cflowmap.cols; x += step) {
             const cv::Point2f& fxy = flow.at<cv::Point2f>(y, x);
             const cv::Point roundedPoint = cv::Point(cvRound(x+fxy.x), cvRound(y+fxy.y));
             line(cflowmap, cv::Point(x,y), roundedPoint, color, 1, cv::LINE_AA);

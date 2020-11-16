@@ -18,7 +18,6 @@ private:
     cv::Point2f position;
     Vector innertia;
 
-
     bool operator == (const Boid &ref) const;
 
     const long getID() const;
