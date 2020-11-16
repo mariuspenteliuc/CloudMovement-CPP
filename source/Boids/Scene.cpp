@@ -37,6 +37,7 @@ int Scene::getBoidsCount() {
 int Scene::getSizeX() {
     return sizeX;
 }
+
 int Scene::getSizeY() {
     return sizeY;
 }

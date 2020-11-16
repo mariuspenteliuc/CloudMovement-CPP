@@ -16,11 +16,9 @@ private:
     std::vector<Boid> boids;
     int sizeX, sizeY;
 
-    std::vector<Boid> getNeighbors(Boid boid, float range);
     bool addBoid(Boid boid);
     cv::Point2f getCenterOfMass();
     cv::Point2f getCenterOfMass(std::vector<Boid> boids);
-    std::vector<Boid> getAllBoids();
 
     cv::Point2f rule1(Boid boid);
     cv::Point2f rule2(Boid boid);
@@ -31,6 +29,8 @@ public:
     int getSizeY();
     bool addRandomBoid();
     int getBoidsCount();
+    std::vector<Boid> getNeighbors(Boid boid, float range);
+    std::vector<Boid> getAllBoids();
 };
 
 #endif /* Scene_hpp */
