@@ -45,3 +45,38 @@ int Scene::getSizeX() {
 int Scene::getSizeY() {
     return sizeY;
 }
+
+cv::Point2f Scene::getCenterOfMass() {
+    return getCenterOfMass(boids);
+}
+
+cv::Point2f Scene::getCenterOfMass(std::vector<Boid> boids) {
+    cv::Point2f centerOfMass;
+    for (Boid boid : boids) {
+        centerOfMass = addPoints(centerOfMass, boid.getPosition());
+    }
+    return dividePoints(centerOfMass, boids.size());
+}
+
+std::vector<Boid> Scene::getAllBoids() {
+    return boids;
+}
+
+Point2f Scene::rule1(Boid boid) {
+    Point2f perceivedCenterOfMassForBoid;
+    std::vector<Boid> neighborhood = getNeighbors(boid, FIXED_RANGE);
+    perceivedCenterOfMassForBoid = getCenterOfMass(neighborhood);
+    return perceivedCenterOfMassForBoid;
+}
+
+Point2f Scene::rule2(Boid boid) {
+    Point2f collisionDistance;
+    std::vector<Boid> neighborhood = getNeighbors(boid, FIXED_RANGE);
+    for (int i = 0; i < neighborhood.size(); ++i) {
+        float proximity = Boid::getDistanceBetween(boid, neighborhood[i]);
+        if (abs(proximity) < COLLISION_RANGE) {
+            collisionDistance = removePoints(collisionDistance, proximity);
+        }
+    }
+    return collisionDistance;
+}
