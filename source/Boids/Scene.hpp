@@ -15,6 +15,8 @@ class Scene {
 private:
     std::vector<Boid> boids;
     int sizeX, sizeY;
+    static const float FIXED_RANGE;
+    static const float COLLISION_RANGE;
 
     bool addBoid(Boid boid);
     cv::Point2f getCenterOfMass();

@@ -6,6 +6,10 @@
 //
 
 #include "Scene.hpp"
+#include "MathHelper.hpp"
+
+const float Scene::FIXED_RANGE = 20;
+const float Scene::COLLISION_RANGE = 5;
 
 std::vector<Boid> Scene::getNeighbors(Boid boid, float range) {
     std::vector<Boid> neighbors;
