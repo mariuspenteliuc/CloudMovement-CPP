@@ -99,6 +99,18 @@ cv::Mat Scene::getWindMap() {
     return windMap;
 }
 
+std::vector<Vector> Scene::getWindVectors(cv::Point2f location) {
+    std::vector<Vector> closeWindVectors;
+    for (int i = -FIXED_RANGE; i <= FIXED_RANGE; ++i) {
+        for (int j = -FIXED_RANGE; j <= FIXED_RANGE; ++j) {
+            Point2f origin = windMap.at<cv::Point2f>(location.y+j, location.x+i);
+            Vector vector = Vector(origin, location);
+            closeWindVectors.push_back(vector);
+        }
+    }
+    return closeWindVectors;
+}
+
 bool Scene::update() {
     int i = 0;
     for (Boid boid : boids) {

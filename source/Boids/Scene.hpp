@@ -28,6 +28,7 @@ private:
     cv::Point2f rule3(Boid boid);
 public:
     Scene(int sizeX, int sizeY);
+    std::vector<Vector> getWindVectors(cv::Point2f location);
     int getSizeX();
     int getSizeY();
     cv::Mat getWindMap();
