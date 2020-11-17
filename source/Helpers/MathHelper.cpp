@@ -37,3 +37,11 @@ Point2f multiplyPoint(Point2f p, float f) {
 float ruleOfThree(float part, float whole) {
     return part / whole;
 }
+
+Point2f averagePoints(std::vector<cv::Point2f> points) {
+    cv::Point2f average;
+    for (Point2f point: points) {
+        average = addPoints(average, point);
+    }
+    return dividePoint(average, points.size());
+}

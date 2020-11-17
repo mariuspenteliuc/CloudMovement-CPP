@@ -19,5 +19,6 @@ Point2f removePoints(Point2f v1, float a);
 Point2f dividePoint(Point2f v1, float a);
 float ruleOfThree(float part, float whole);
 Point2f multiplyPoint(Point2f p, float f);
+Point2f averagePoints(std::vector<cv::Point2f> points);
 
 #endif /* MathHelper_hpp */
