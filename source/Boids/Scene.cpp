@@ -90,6 +90,15 @@ Point2f Scene::rule2(Boid boid) {
     return collisionDistance;
 }
 
+bool Scene::updateWindMap(cv::Mat newWindMap) {
+    windMap = newWindMap;
+    return true;
+}
+
+cv::Mat Scene::getWindMap() {
+    return windMap;
+}
+
 bool Scene::update() {
     int i = 0;
     for (Boid boid : boids) {

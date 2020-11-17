@@ -17,6 +17,7 @@ private:
     int sizeX, sizeY;
     static const float FIXED_RANGE;
     static const float COLLISION_RANGE;
+    cv::Mat windMap;
 
     bool addBoid(Boid boid);
     cv::Point2f getCenterOfMass();
@@ -29,6 +30,8 @@ public:
     Scene(int sizeX, int sizeY);
     int getSizeX();
     int getSizeY();
+    cv::Mat getWindMap();
+    bool updateWindMap(cv::Mat newWindMap);
     bool addRandomBoid();
     int getBoidsCount();
     std::vector<Boid> getNeighbors(Boid boid, float range);
