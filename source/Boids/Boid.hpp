@@ -16,7 +16,7 @@ class Boid {
 private:
     unsigned long id;
     cv::Point2f position;
-    Vector innertia;
+    Vector velocity;
 
     bool operator == (const Boid &ref) const;
 
