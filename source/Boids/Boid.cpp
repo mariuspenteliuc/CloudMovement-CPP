@@ -6,7 +6,6 @@
 //
 
 #include "Boid.hpp"
-#include <cstdlib>
 
 Boid::Boid() {
     id = rand() % 4294967295;

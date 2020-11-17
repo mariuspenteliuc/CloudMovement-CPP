@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
 #include "Vector.hpp"
+#include <cstdlib>
+#include "MathHelper.hpp"
 
 class Boid {
 private:
