@@ -118,8 +118,12 @@ std::vector<Vector> Scene::getWindVectors(cv::Point2f location) {
     return closeWindVectors;
 }
 
+// TODO: create a startSimulation() and a stopSimulation() function
+
 bool Scene::update() {
+//    TODO: rewrite this function to apply rules, update positions, and draw boids on scene;
     int i = 0;
+//    TODO: refactor contents of this for into a function applyRules(Boid boid) which should be able to apply each rule individually
     for (Boid boid : boids) {
         std::vector<Point2f> points;
         Point2f p1 = rule1(boid);
