@@ -48,6 +48,12 @@ bool Boid::updatePosition() {
     position = addPoints(position, velocity.getDisplacement());
     return true;
 }
+bool Boid::updatePosition(std::vector<cv::Point2f> points) {
+    cv::Point2f pt = averagePoints(points);
+    velocity = Vector(position, pt);
+    position = pt;
+    return true;
+}
 
 std::ostream& operator<<(std::ostream& os, const Boid& boid) {
     os << boid.to_str();

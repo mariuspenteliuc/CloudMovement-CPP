@@ -27,6 +27,7 @@ private:
     static void initAtPosition(float x, float y);
     cv::Point2f getDistanceTo(Boid boid);
     bool updatePosition();
+    bool updatePosition(std::vector<cv::Point2f> points);
     friend std::ostream& operator<<(std::ostream& os, const Boid& boid);
 protected:
 public:
