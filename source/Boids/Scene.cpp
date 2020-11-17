@@ -55,7 +55,7 @@ cv::Point2f Scene::getCenterOfMass(std::vector<Boid> boids) {
     for (Boid boid : boids) {
         centerOfMass = addPoints(centerOfMass, boid.getPosition());
     }
-    return dividePoints(centerOfMass, boids.size());
+    return dividePoint(centerOfMass, boids.size());
 }
 
 std::vector<Boid> Scene::getAllBoids() {

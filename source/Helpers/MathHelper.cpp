@@ -22,7 +22,7 @@ Point2f removePoints(Point2f v1, float a) {
     float y = v1.y - a;
     return Point2f(x, y);
 }
-Point2f dividePoints(Point2f v1, float a) {
+Point2f dividePoint(Point2f v1, float a) {
     float x = v1.x / a;
     float y = v1.y / a;
     return Point2f(x, y);
