@@ -61,14 +61,23 @@ cv::Point2f Scene::getCenterOfMass(std::vector<Boid> boids) {
 std::vector<Boid> Scene::getAllBoids() {
     return boids;
 }
-
+/**
+ * Sum numbers in a vector.
+ *
+ * @param values Container whose values are summed.
+ * @return sum of `values`, or 0.0 if `values` is empty.
+ */
 Point2f Scene::rule1(Boid boid) {
     Point2f perceivedCenterOfMassForBoid;
     std::vector<Boid> neighborhood = getNeighbors(boid, FIXED_RANGE);
     perceivedCenterOfMassForBoid = getCenterOfMass(neighborhood);
     return perceivedCenterOfMassForBoid;
 }
-
+/**
+ * Method name: name
+ * Description: returns name
+ * Parameters: none
+ */
 Point2f Scene::rule2(Boid boid) {
     Point2f collisionDistance;
     std::vector<Boid> neighborhood = getNeighbors(boid, FIXED_RANGE);
