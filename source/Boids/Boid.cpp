@@ -29,6 +29,26 @@ std::string const&  Boid::to_str() const {
     return value;
 }
 
+bool Boid::updateVelocity(std::vector<cv::Point2f> points) {
+    cv::Point2f average = Point2f(0, 0);
+    for (cv::Point2f point : points) {
+        average = addPoints(average, point);
+    }
+    average = dividePoints(average, points.size());
+    float currentDisplacement = Vector::getEuclidianDistance(position, velocity.getOrigin());
+    float targetDisplacement = Vector::getEuclidianDistance(average, position);
+    float distance = ruleOfThree(currentDisplacement, targetDisplacement);
+    cv::Point2f newTarget = multiplyPoint(average, distance);
+    velocity = Vector(position, newTarget);
+    updatePosition();
+    return true;
+}
+
+bool Boid::updatePosition() {
+    position = addPoints(position, velocity.getDisplacement());
+    return true;
+}
+
 std::ostream& operator<<(std::ostream& os, const Boid& boid) {
     os << boid.to_str();
     std::cout << boid.to_str();

@@ -26,10 +26,12 @@ private:
 
     static void initAtPosition(float x, float y);
     cv::Point2f getDistanceTo(Boid boid);
+    bool updatePosition();
     friend std::ostream& operator<<(std::ostream& os, const Boid& boid);
 protected:
 public:
     Boid();
+    bool updateVelocity(std::vector<cv::Point2f> points);
     static float getDistanceBetween(Boid firstBoid, Boid secondBoid);
     static Boid initWithinConstraint(int x, int y);
     std::string const&  to_str() const;
