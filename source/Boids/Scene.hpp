@@ -33,6 +33,7 @@ public:
     int getBoidsCount();
     std::vector<Boid> getNeighbors(Boid boid, float range);
     std::vector<Boid> getAllBoids();
+    bool update();
 };
 
 #endif /* Scene_hpp */

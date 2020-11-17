@@ -80,3 +80,24 @@ Point2f Scene::rule2(Boid boid) {
     }
     return collisionDistance;
 }
+
+bool Scene::update() {
+    int i = 0;
+    for (Boid boid : boids) {
+        std::vector<Point2f> points;
+        Point2f p1 = rule1(boid);
+        points.push_back(p1);
+//        Point2f p2 = rule2(boid);
+//        points.push_back(p2);
+//        Point2f p3 = rule3(boid);
+//        points.push_back(p3);
+        boid.updateVelocity(points);
+//        if (i%500 != 0) {
+//            i++;
+//            continue;
+//        } else {
+//            std::cout << i++ << std::endl;
+//        }
+    }
+    return true;
+}
