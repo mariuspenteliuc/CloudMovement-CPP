@@ -25,6 +25,10 @@ private:
     static void initWithOriginAndDisplacement(cv::Point origin, cv::Point displacement);
 public:
     Vector();
+    static float getEuclidianDistance(cv::Point2f origin, cv::Point2f destination);
+    Vector(cv::Point2f origin, cv::Point2f position);
+    cv::Point2f getOrigin();
+    cv::Point2f getDisplacement();
 };
 
 #endif /* Vector_hpp */
