@@ -6,6 +6,7 @@
 //
 
 #include <iostream>
+#include <string>
 #include <opencv2/opencv.hpp>
 #include "OpticalFlowService.hpp"
 #include "ImageHelper.hpp"
@@ -29,11 +30,19 @@ int main(int argc, const char * argv[]) {
     //TODO: add function to load and overlay flows from disk.
 
     Scene scene = Scene(100, 100);
-    scene.addRandomBoid();
-    scene.addRandomBoid();
-    scene.addRandomBoid();
-    scene.addRandomBoid();
-    cout << scene.getBoidsCount() << endl;
-    
+    for (int i = 0; i < 10000; ++i) {
+        scene.addRandomBoid();
+    }
+    cout << "Scene has " << scene.getBoidsCount() << " objects." << endl;
+    std::vector<Boid> allBoids = scene.getAllBoids();
+
+    std::vector<Boid> neighbors = scene.getNeighbors(allBoids[0], 10);
+    cout << "Found " << neighbors.size() << " neighbors." << endl;
+
+    scene.update();
+
+    neighbors = scene.getNeighbors(allBoids[0], 10);
+    cout << "Found " << neighbors.size() << " neighbors." << endl;
+
     return 0;
 }
