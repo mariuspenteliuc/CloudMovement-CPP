@@ -90,6 +90,13 @@ Point2f Scene::rule2(Boid boid) {
     return collisionDistance;
 }
 
+Point2f Scene::ruleOfWind(Boid boid) {
+    std::vector<Vector> winds = getWindVectors(boid.getPosition());
+    Point2f averageWind = Vector::averageVectorDisplacement(winds);
+    Point2f targetPoint = addPoints(boid.getPosition(), averageWind);
+    return targetPoint;
+}
+
 bool Scene::updateWindMap(cv::Mat newWindMap) {
     windMap = newWindMap;
     return true;
