@@ -11,6 +11,15 @@ Vector::Vector() {
     
 }
 
+cv::Point2f Vector::averageVectorDisplacement(std::vector<Vector> vectors) {
+    std::vector<Point2f> points;
+    for (Vector vector : vectors) {
+        points.push_back(vector.getDisplacement());
+    }
+    cv::Point2f average = averagePoints(points);
+    return average;
+}
+
 float Vector::getEuclidianDistance(cv::Point2f origin, cv::Point2f destination) {
     return sqrt(pow(destination.x - origin.x, 2) + pow(destination.y - origin.y, 2));
 }
