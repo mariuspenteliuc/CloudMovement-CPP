@@ -17,5 +17,7 @@ Point2f addPoints(Point2f v1, Point2f v2);
 Point2f removePoints(Point2f v1, Point2f v2);
 Point2f removePoints(Point2f v1, float a);
 Point2f dividePoints(Point2f v1, float a);
+float ruleOfThree(float part, float whole);
+Point2f multiplyPoint(Point2f p, float f);
 
 #endif /* MathHelper_hpp */

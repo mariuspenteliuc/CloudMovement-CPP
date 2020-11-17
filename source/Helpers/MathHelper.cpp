@@ -27,3 +27,13 @@ Point2f dividePoints(Point2f v1, float a){
     float y = v1.y / a;
     return Point2f(x, y);
 }
+
+Point2f multiplyPoint(Point2f p, float f) {
+    float x = p.x * f;
+    float y = p.y * f;
+    return Point2f(x, y);
+}
+
+float ruleOfThree(float part, float whole) {
+    return part / whole;
+}
