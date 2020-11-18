@@ -137,6 +137,7 @@ bool Scene::update() {
 //        points.push_back(p3);
         boid.updateVelocity(points);
     }
+    drawScene();
     return true;
 }
 

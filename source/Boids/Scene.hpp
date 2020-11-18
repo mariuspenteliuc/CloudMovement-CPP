@@ -30,6 +30,7 @@ private:
     cv::Point2f rule3(Boid boid);
     cv::Point2f ruleOfWind(Boid boid);
     void clearScene();
+    void drawScene();
 public:
     Scene(int sizeX, int sizeY);
     std::vector<Vector> getWindVectors(cv::Point2f location);
@@ -42,7 +43,6 @@ public:
     std::vector<Boid> getNeighbors(Boid boid, float range);
     std::vector<Boid> getAllBoids();
     bool update();
-    void drawScene();
 };
 
 #endif /* Scene_hpp */

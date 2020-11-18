@@ -33,16 +33,19 @@ int main(int argc, const char * argv[]) {
     for (int i = 0; i < 10000; ++i) {
         scene.addRandomBoid();
     }
-    cout << "Scene has " << scene.getBoidsCount() << " objects." << endl;
-    std::vector<Boid> allBoids = scene.getAllBoids();
-
-    std::vector<Boid> neighbors = scene.getNeighbors(allBoids[0], 10);
-    cout << "Found " << neighbors.size() << " neighbors." << endl;
-
-    scene.update();
-
-    neighbors = scene.getNeighbors(allBoids[0], 10);
-    cout << "Found " << neighbors.size() << " neighbors." << endl;
+    scene.drawScene();
+//    cout << "Scene has " << scene.getBoidsCount() << " objects." << endl;
+//    std::vector<Boid> allBoids = scene.getAllBoids();
+//
+//    std::vector<Boid> neighbors = scene.getNeighbors(allBoids[0], 10);
+//    cout << "Found " << neighbors.size() << " neighbors." << endl;
+//
+    for (int i = 0; i < 50; ++i) {
+        scene.update();
+    }
+//
+//    neighbors = scene.getNeighbors(allBoids[0], 10);
+//    cout << "Found " << neighbors.size() << " neighbors." << endl;
 
     return 0;
 }
