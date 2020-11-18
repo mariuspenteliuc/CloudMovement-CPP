@@ -127,7 +127,7 @@ bool Scene::update() {
 //    TODO: rewrite this function to apply rules, update positions, and draw boids on scene;
     int i = 0;
 //    TODO: refactor contents of this for into a function applyRules(Boid boid) which should be able to apply each rule individually
-    for (Boid boid : boids) {
+    for (Boid& boid : boids) {
         std::vector<Point2f> points;
         Point2f p1 = rule1(boid);
         points.push_back(p1);
@@ -136,12 +136,6 @@ bool Scene::update() {
 //        Point2f p3 = rule3(boid);
 //        points.push_back(p3);
         boid.updateVelocity(points);
-//        if (i%500 != 0) {
-//            i++;
-//            continue;
-//        } else {
-//            std::cout << i++ << std::endl;
-//        }
     }
     return true;
 }
