@@ -67,7 +67,8 @@ const long Boid::getID() const {
 
 Boid Boid::initWithinConstraint(int maxX, int maxY) {
     Boid boid = Boid();
-    boid.position = cv::Point2f((rand() % (maxX * 1000))/100.0f, (rand() % (maxY * 1000))/100.0f);
+    boid.position = cv::Point2f((rand() % (maxX * 100))/100.0f, (rand() % (maxY * 100))/100.0f);
+    boid.velocity = Vector(boid.getPosition(), boid.getPosition());
     return boid;
 }
 
