@@ -12,6 +12,11 @@ Point2f addPoints(Point2f v1, Point2f v2) {
     float y = v1.y + v2.y;
     return Point2f(x, y);
 }
+Point2f addPointsByPercentage(Point2f v1, float p1, Point2f v2, float p2) {
+    float x = p1 * v1.x + p2 * v2.x;
+    float y = p1 * v1.y + p2 * v2.y;
+    return Point2f(x, y);
+}
 Point2f removePoints(Point2f v1, Point2f v2) {
     float x = v1.x - v2.x;
     float y = v1.y - v2.y;
