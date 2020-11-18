@@ -37,4 +37,3 @@ Vector::Vector(cv::Point2f origin, cv::Point2f position) {
 cv::Point2f Vector::getDisplacement() {
     return displacement;
 }
-
