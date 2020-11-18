@@ -24,6 +24,9 @@ std::vector<Boid> Scene::getNeighbors(Boid boid, float range) {
 Scene::Scene(int sizeX, int sizeY) {
     this->sizeX = sizeX;
     this->sizeY = sizeY;
+    this->scene = Mat::zeros( sizeY, sizeX, CV_8UC3 );//Mat(sizeX, sizeY, CV_32F);
+    this->framesShown = 0;
+    namedWindow("OpticalFlow", WINDOW_AUTOSIZE);
 }
 
 bool Scene::addRandomBoid() {
@@ -142,3 +145,29 @@ bool Scene::update() {
     }
     return true;
 }
+
+void Scene::clearScene() {
+    scene = Mat::zeros( sizeY, sizeX, CV_8UC3 );
+}
+
+void Scene::drawScene() {
+    clearScene();
+    for (Boid boid : boids) {
+        const cv::Point point = cv::Point(cvRound(boid.getPosition().x), cvRound(boid.getPosition().y));
+        circle(scene, point, .5, cv::Scalar(255, 255, 255, 0), cv::FILLED);
+    }
+
+
+//    imshow("Image " + std::to_string(framesShown++), scene);
+    imshow("OpticalFlow", scene);
+    std::cout << "press any key to continue..." << std::endl;
+    waitKey();
+//    for(int y = 0; y < cflowmap.rows; y += step)
+//        for(int x = 0; x < cflowmap.cols; x += step) {
+//            const cv::Point2f& fxy = flow.at<cv::Point2f>(y, x);
+//            const cv::Point roundedPoint = cv::Point(cvRound(x+fxy.x), cvRound(y+fxy.y));
+//            line(cflowmap, cv::Point(x,y), roundedPoint, color, 1, cv::LINE_AA);
+//            circle(cflowmap, cv::Point(x,y), 0.5, color, cv::FILLED);
+//        }
+}
+
