@@ -35,11 +35,12 @@ bool Boid::updateVelocity(std::vector<cv::Point2f> points) {
         average = addPoints(average, point);
     }
     average = dividePoint(average, points.size());
-    float currentDisplacement = Vector::getEuclidianDistance(position, velocity.getOrigin());
-    float targetDisplacement = Vector::getEuclidianDistance(average, position);
-    float distance = ruleOfThree(currentDisplacement, targetDisplacement);
-    cv::Point2f newTarget = multiplyPoint(average, distance);
-    velocity = Vector(position, newTarget);
+//    float currentDisplacement = Vector::getEuclidianDistance(position, velocity.getOrigin());
+//    float targetDisplacement = Vector::getEuclidianDistance(average, position);
+//    float distance = ruleOfThree(currentDisplacement, targetDisplacement);
+//    cv::Point2f newTarget = multiplyPoint(removePoints(average, position), distance);
+//    velocity = Vector(position, newTarget);
+    velocity = Vector(position, average);
     updatePosition();
     return true;
 }
