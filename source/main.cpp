@@ -29,7 +29,7 @@ int main(int argc, const char * argv[]) {
 
     //TODO: add function to load and overlay flows from disk.
 
-    Scene scene = Scene(100, 100);
+    Scene scene = Scene(1920, 1080);
     for (int i = 0; i < 10000; ++i) {
         scene.addRandomBoid();
     }
