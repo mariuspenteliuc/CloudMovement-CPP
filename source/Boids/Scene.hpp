@@ -43,6 +43,7 @@ public:
     std::vector<Boid> getNeighbors(Boid boid, float range);
     std::vector<Boid> getAllBoids();
     bool update();
+    bool startSimulation();
 };
 
 #endif /* Scene_hpp */

@@ -26,7 +26,6 @@ Scene::Scene(int sizeX, int sizeY) {
     this->sizeY = sizeY;
     this->scene = Mat::zeros( sizeY, sizeX, CV_8UC3 );//Mat(sizeX, sizeY, CV_32F);
     this->framesShown = 0;
-    namedWindow("OpticalFlow", WINDOW_AUTOSIZE);
 }
 
 bool Scene::addRandomBoid() {
@@ -143,6 +142,12 @@ bool Scene::update() {
 
 void Scene::clearScene() {
     scene = Mat::zeros( sizeY, sizeX, CV_8UC3 );
+}
+
+bool Scene::startSimulation() {
+    namedWindow("OpticalFlow", WINDOW_AUTOSIZE);
+    drawScene();
+    return true;
 }
 
 void Scene::drawScene() {

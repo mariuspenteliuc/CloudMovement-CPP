@@ -33,7 +33,7 @@ int main(int argc, const char * argv[]) {
     for (int i = 0; i < 10000; ++i) {
         scene.addRandomBoid();
     }
-    scene.drawScene();
+    scene.startSimulation();
 //    cout << "Scene has " << scene.getBoidsCount() << " objects." << endl;
 //    std::vector<Boid> allBoids = scene.getAllBoids();
 //
