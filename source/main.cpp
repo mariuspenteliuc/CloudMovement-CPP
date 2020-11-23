@@ -24,15 +24,25 @@ int main(int argc, const char * argv[]) {
     srand (static_cast <unsigned> (time(0)));
     std::cout << "OpenCV version: " << OpticalFlowService::getOpenCVVersion() << endl;
 
-//    OpticalFlowService ofService;
+    OpticalFlowService ofService;
 //    ofService.computeFlowForImages(DEBUG_IN, DEBUG_OUT, "jpg", true, true, false);
+    cv::String path(DEBUG_OUT + "/flows");
 
+//    Mat img = imread("/Users/mariuspenteliuc/Assets/PhD/debug/debug_in/GERVISIR2017-10-01-001418.jpg");
+//    Mat imgGray;
+//    cv::cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);
+//    imgGray = ofService.overlayFlowLines(average, imgGray);
+//    namedWindow("OpticalFlow", WINDOW_AUTOSIZE);
+//    imshow("OpticalFlow", imgGray);
+//    waitKey();
     //TODO: add function to load and overlay flows from disk.
 
     Scene scene = Scene(1920, 1080);
     for (int i = 0; i < 10000; ++i) {
         scene.addRandomBoid();
     }
+    Mat average = OpticalFlowService::averageFlows(path);
+    scene.updateWindMap(average);
     scene.startSimulation();
 //    cout << "Scene has " << scene.getBoidsCount() << " objects." << endl;
 //    std::vector<Boid> allBoids = scene.getAllBoids();
