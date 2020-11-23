@@ -62,6 +62,50 @@ int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath
     return 0;
 }
 
+vector<cv::Mat> OpticalFlowService::loadFlowsFromDirectory(string inputPath) {
+    cv::String path(inputPath + "/*." + "npy");
+    vector<string> fileNames;
+    cv::glob(path, fileNames, false);
+    vector<Mat> flows;
+    for (size_t k=0; k<fileNames.size(); ++k) {
+//        flows.push_back(imread(fileNames[k]));
+        flows.push_back(readOpticalFlow(fileNames[k]));
+    }
+    return flows;
+}
+
+Mat OpticalFlowService::averageFlows(string inputPath) {
+    vector<Mat> flows = OpticalFlowService::loadFlowsFromDirectory(inputPath);
+    int cols = flows[0].cols;
+    int rows = flows[0].rows;
+    Mat flowAverage = Mat::zeros(cols, rows, CV_32FC4);
+//    flowAverage = cvtColorBGR2GRAY(flowAverage);
+    for(int row = 0; row < rows; ++row) {
+        for(int col = 0; col < cols; ++col) {
+            int movementCount = 0;
+            float averageX = 0.0;
+            float averageY = 0.0;
+            for (Mat flow : flows) {
+                Point2f& fxy = flow.at<Point2f>(row, col);
+                if (fxy.x > 0.001 || fxy.y > 0.001) {
+                    movementCount++;
+                    averageX += fxy.x;
+                    averageY += fxy.y;
+                }
+            }
+            if (movementCount == 0) {
+                movementCount++;
+            }
+            averageX /= movementCount;
+            averageY /= movementCount;
+//            std::cout <<flowAverage.at<Point2f>(y, x).x << ", " << flowAverage.at<Point2f>(y, x).y << endl;
+            flowAverage.at<Point2f>(row, col) = Point2f(averageX, averageY);
+//            std::cout <<flowAverage.at<Point2f>(y, x).x << ", " << flowAverage.at<Point2f>(y, x).y << endl;
+        }
+    }
+    return flowAverage;
+}
+
 void OpticalFlowService::saveFlowToDisk(string fileName, cv::Mat flow) {
     writeOpticalFlow(fileName, flow);
 }

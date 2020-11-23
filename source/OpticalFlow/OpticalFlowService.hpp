@@ -32,6 +32,8 @@ public:
     static string getOpenCVVersion();
     static cv::Mat overlayFlowLines(cv::Mat flow, cv::Mat image);
     int computeFlowForImages(string inputPath, string outputPath, string fileType, bool saveOverlays, bool saveFlows, bool previewOverlays);
+    static vector<cv::Mat> loadFlowsFromDirectory(string inputPath);
+    static cv::Mat averageFlows(string inputPath);
 };
 
 #endif /* OpticalFlowService_hpp */
