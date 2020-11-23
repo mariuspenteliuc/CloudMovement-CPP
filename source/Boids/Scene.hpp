@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include "Boid.hpp"
+#include "OpticalFlowService.hpp"
 
 class Scene {
 private:

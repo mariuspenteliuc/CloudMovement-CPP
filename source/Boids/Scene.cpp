@@ -112,8 +112,21 @@ std::vector<Vector> Scene::getWindVectors(cv::Point2f location) {
     std::vector<Vector> closeWindVectors;
     for (int i = -FIXED_RANGE; i <= FIXED_RANGE; ++i) {
         for (int j = -FIXED_RANGE; j <= FIXED_RANGE; ++j) {
-            Point2f origin = windMap.at<cv::Point2f>(location.y+j, location.x+i);
-            Vector vector = Vector(origin, location);
+            float yAxis = location.y + j;
+            float xAxis = location.x + i;
+            if (yAxis < 0) {
+                yAxis = 0;
+            } else if (yAxis > 1079) {
+                yAxis = 1919;
+            }
+            if (xAxis < 0) {
+                xAxis = 0;
+            } else if (xAxis > 1919) {
+                xAxis = 1079;
+            }
+            Point2f origin = windMap.at<cv::Point2f>(yAxis, xAxis);
+//            Vector vector = Vector(origin, location);
+            Vector vector = Vector::initWithDisplacementAndPosition(origin, location);
             closeWindVectors.push_back(vector);
         }
     }
@@ -128,7 +141,7 @@ bool Scene::update() {
 //    TODO: refactor contents of this for into a function applyRules(Boid boid) which should be able to apply each rule individually
     for (Boid& boid : boids) {
         std::vector<Point2f> points;
-        Point2f p1 = rule1(boid);
+        Point2f p1 = ruleOfWind(boid);
         points.push_back(p1);
 //        Point2f p2 = rule2(boid);
 //        points.push_back(p2);
@@ -152,6 +165,7 @@ bool Scene::startSimulation() {
 
 void Scene::drawScene() {
     clearScene();
+    int k = 0;
     for (Boid boid : boids) {
         const cv::Point point = cv::Point(cvRound(boid.getPosition().x), cvRound(boid.getPosition().y));
         circle(scene, point, .5, cv::Scalar(255, 255, 255, 0), cv::FILLED);
@@ -160,6 +174,7 @@ void Scene::drawScene() {
 
 //    imshow("Image " + std::to_string(framesShown++), scene);
     imshow("OpticalFlow", scene);
+//    OpticalFlowService::saveImageToDisk("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/overlays/boids_" + std::to_string(k++) + ".jpg", scene);
     std::cout << "press any key to continue..." << std::endl;
     waitKey();
 //    for(int y = 0; y < cflowmap.rows; y += step)
