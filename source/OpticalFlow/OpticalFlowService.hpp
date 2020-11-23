@@ -22,14 +22,15 @@ private:
     static cv::Mat cvtColorBGR2GRAY(cv::Mat bgrMat);
     static void drawOpticalFlowMap(const cv::Mat& flow, cv::Mat& cflowmap, int step, double, const cv::Scalar& color);
     static cv::Mat getOpticalFlowFarneback(cv::Mat firstImage, cv::Mat secondImage);
-    static cv::Mat overlayFlowLines(cv::Mat flow, cv::Mat image);
     static void saveFlowToDisk(string fileName, cv::Mat flow);
-    static void saveImageToDisk(string fileName, cv::Mat image);
+
     static cv::Mat loadImageFromDisk(string fileName);
 
 public:
+    static void saveImageToDisk(string fileName, cv::Mat image);
     OpticalFlowService();
     static string getOpenCVVersion();
+    static cv::Mat overlayFlowLines(cv::Mat flow, cv::Mat image);
     int computeFlowForImages(string inputPath, string outputPath, string fileType, bool saveOverlays, bool saveFlows, bool previewOverlays);
 };
 
