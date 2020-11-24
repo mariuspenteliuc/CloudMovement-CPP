@@ -23,6 +23,8 @@ private:
     cv::Mat windMap;
     cv::Mat scene;
     int framesShown;
+    bool saveSimulation;
+    int framesSaved = 0;
 
     bool addBoid(Boid boid);
     cv::Point2f getCenterOfMass();

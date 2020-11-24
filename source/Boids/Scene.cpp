@@ -25,6 +25,7 @@ Scene::Scene(int sizeX, int sizeY) {
     this->sizeY = sizeY;
     this->scene = Mat::zeros( sizeY, sizeX, CV_8UC3 );//Mat(sizeX, sizeY, CV_32F);
     this->framesShown = 0;
+    this->saveSimulation = false;
 }
 
 bool Scene::addRandomBoid() {
@@ -157,14 +158,18 @@ void Scene::clearScene() {
 }
 
 bool Scene::startSimulation() {
+    saveSimulation = true;
     namedWindow("OpticalFlow", WINDOW_AUTOSIZE);
     drawScene();
     return true;
 }
 
 void Scene::drawScene() {
+    if (saveSimulation) {
+        std::__fs::filesystem::create_directories("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/boids/");
+    }
     clearScene();
-    int k = 0;
+//    int k = 0;
     for (Boid boid : boids) {
         const cv::Point point = cv::Point(cvRound(boid.getPosition().x), cvRound(boid.getPosition().y));
         circle(scene, point, .5, cv::Scalar(255, 255, 255, 0), cv::FILLED);
