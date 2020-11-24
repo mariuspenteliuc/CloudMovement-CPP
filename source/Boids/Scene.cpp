@@ -173,9 +173,9 @@ void Scene::drawScene() {
 
 //    imshow("Image " + std::to_string(framesShown++), scene);
     imshow("OpticalFlow", scene);
-//    OpticalFlowService::saveImageToDisk("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/overlays/boids_" + std::to_string(k++) + ".jpg", scene);
-    std::cout << "press any key to continue..." << std::endl;
-    waitKey();
+    OpticalFlowService::saveImageToDisk("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/boids/boids_" + std::to_string(framesSaved++) + ".jpg", scene);
+//    std::cout << "press any key to continue..." << std::endl;
+//    waitKey();
 //    for(int y = 0; y < cflowmap.rows; y += step)
 //        for(int x = 0; x < cflowmap.cols; x += step) {
 //            const cv::Point2f& fxy = flow.at<cv::Point2f>(y, x);

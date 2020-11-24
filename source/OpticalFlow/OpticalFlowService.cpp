@@ -52,7 +52,7 @@ int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath
             if (previewOverlays) {
                 namedWindow("OpticalFlow", WINDOW_AUTOSIZE);
                 imshow("Image " + to_string(k), overlayedImage);
-                waitKey();
+//                waitKey();
             }
         }
         im1 = im2;
