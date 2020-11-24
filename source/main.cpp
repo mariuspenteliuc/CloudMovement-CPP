@@ -26,7 +26,7 @@ int main(int argc, const char * argv[]) {
 
     OpticalFlowService ofService;
 //    ofService.computeFlowForImages(DEBUG_IN, DEBUG_OUT, "jpg", true, true, false);
-    cv::String path(DEBUG_OUT + "/flows");
+    cv::String pathToFlows(DEBUG_OUT + "/flows");
 
 //    Mat img = imread("/Users/mariuspenteliuc/Assets/PhD/debug/debug_in/GERVISIR2017-10-01-001418.jpg");
 //    Mat imgGray;
@@ -35,14 +35,16 @@ int main(int argc, const char * argv[]) {
 //    namedWindow("OpticalFlow", WINDOW_AUTOSIZE);
 //    imshow("OpticalFlow", imgGray);
 //    waitKey();
-    //TODO: add function to load and overlay flows from disk.
 
     Scene scene = Scene(1920, 1080);
     for (int i = 0; i < 10000; ++i) {
         scene.addRandomBoid();
     }
-    Mat average = OpticalFlowService::averageFlows(path);
+    cout << "Computing Wind Map..." << endl;
+    Mat average = OpticalFlowService::averageFlows(pathToFlows);
     scene.updateWindMap(average);
+
+    cout << "Starting Simulation..." << endl;
     scene.startSimulation();
 //    cout << "Scene has " << scene.getBoidsCount() << " objects." << endl;
 //    std::vector<Boid> allBoids = scene.getAllBoids();
@@ -50,8 +52,9 @@ int main(int argc, const char * argv[]) {
 //    std::vector<Boid> neighbors = scene.getNeighbors(allBoids[0], 10);
 //    cout << "Found " << neighbors.size() << " neighbors." << endl;
 //
-    for (int i = 0; i < 50; ++i) {
+    for (int i = 0; i < 500; ++i) {
         scene.update();
+        if (i%100 == 0) cout << i << " images so far..." << endl;
     }
 //
 //    neighbors = scene.getNeighbors(allBoids[0], 10);
