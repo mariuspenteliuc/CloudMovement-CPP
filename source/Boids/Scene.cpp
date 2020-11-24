@@ -6,7 +6,6 @@
 //
 
 #include "Scene.hpp"
-#include "MathHelper.hpp"
 
 const float Scene::FIXED_RANGE = 25;
 const float Scene::COLLISION_RANGE = 5;

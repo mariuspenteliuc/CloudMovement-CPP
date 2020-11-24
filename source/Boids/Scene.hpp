@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include "Boid.hpp"
 #include "OpticalFlowService.hpp"
+#include "MathHelper.hpp"
+#include <filesystem>
 
 class Scene {
 private:
