@@ -114,16 +114,10 @@ std::vector<Vector> Scene::getWindVectors(cv::Point2f location) {
         for (int j = -FIXED_RANGE; j <= FIXED_RANGE; ++j) {
             float yAxis = location.y + j;
             float xAxis = location.x + i;
-            if (yAxis < 0) {
-                yAxis = 0;
-            } else if (yAxis > 1079) {
-                yAxis = 1919;
-            }
-            if (xAxis < 0) {
-                xAxis = 0;
-            } else if (xAxis > 1919) {
-                xAxis = 1079;
-            }
+            if (yAxis < 0) yAxis = 0;
+            else if (yAxis > 1079) yAxis = 1919;
+            if (xAxis < 0) xAxis = 0;
+            else if (xAxis > 1919) xAxis = 1079;
             Point2f origin = windMap.at<cv::Point2f>(yAxis, xAxis);
 //            Vector vector = Vector(origin, location);
             Vector vector = Vector::initWithDisplacementAndPosition(origin, location);
