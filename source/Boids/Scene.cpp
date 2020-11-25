@@ -131,7 +131,7 @@ std::vector<Vector> Scene::getWindVectors(cv::Point2f location) {
 
 bool Scene::update() {
 //    TODO: rewrite this function to apply rules, update positions, and draw boids on scene;
-    int i = 0;
+
 //    TODO: refactor contents of this for into a function applyRules(Boid boid) which should be able to apply each rule individually
     for (Boid& boid : boids) {
         std::vector<Point2f> points;
