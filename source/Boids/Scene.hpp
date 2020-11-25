@@ -36,6 +36,7 @@ private:
     cv::Point2f ruleOfWind(Boid boid);
     void clearScene();
     void drawScene();
+    bool updateSimulation();
 public:
     Scene(int sizeX, int sizeY);
     std::vector<Vector> getWindVectors(cv::Point2f location);
@@ -47,7 +48,7 @@ public:
     int getBoidsCount();
     std::vector<Boid> getNeighbors(Boid boid, float range);
     std::vector<Boid> getAllBoids();
-    bool update();
+    bool runSimulation(int steps);
     bool startSimulation();
 };
 

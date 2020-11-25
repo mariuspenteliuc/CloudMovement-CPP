@@ -24,8 +24,6 @@ std::string const&  Boid::to_str() const {
     value.append(", ");
     value.append(std::to_string(position.y).c_str());
     value.append(")\0");
-//    std::cout << "test: "<<value<<std::endl;
-//    std::string value = "Boid #" + std::to_string(id) + "(" + std::to_string(position.x) + ", " + std::to_string(position.y) + ")";
     return value;
 }
 
@@ -35,11 +33,6 @@ bool Boid::updateVelocity(std::vector<cv::Point2f> points) {
         average = addPoints(average, point);
     }
     average = dividePoint(average, points.size());
-//    float currentDisplacement = Vector::getEuclidianDistance(position, velocity.getOrigin());
-//    float targetDisplacement = Vector::getEuclidianDistance(average, position);
-//    float distance = ruleOfThree(currentDisplacement, targetDisplacement);
-//    cv::Point2f newTarget = multiplyPoint(removePoints(average, position), distance);
-//    velocity = Vector(position, newTarget);
     velocity = Vector(position, average);
     updatePosition();
     return true;
@@ -58,7 +51,6 @@ bool Boid::updatePosition(std::vector<cv::Point2f> points) {
 
 std::ostream& operator<<(std::ostream& os, const Boid& boid) {
     os << boid.to_str();
-    std::cout << boid.to_str();
     return os;
 }
 

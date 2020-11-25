@@ -10,6 +10,13 @@
 const float Scene::FIXED_RANGE = 25;
 const float Scene::COLLISION_RANGE = 5;
 
+/**
+ * Returns the neighborhood of a boid given by a radius.
+ *
+ * @param boid the boid object for which the neighbors are found.
+ * @param range a radius where to look for neighbors.
+ * @return an array of boids that are in the neighborhood.
+ */
 std::vector<Boid> Scene::getNeighbors(Boid boid, float range) {
     std::vector<Boid> neighbors;
     for (auto& potentialNeighbor : boids) {
@@ -20,14 +27,25 @@ std::vector<Boid> Scene::getNeighbors(Boid boid, float range) {
     return neighbors;
 }
 
+/**
+ * Constructor that initializes a new scene to the specified parameters.
+ *
+ * @param sizeX the width of the scene.
+ * @param sizeY the height of the scene.
+ */
 Scene::Scene(int sizeX, int sizeY) {
     this->sizeX = sizeX;
     this->sizeY = sizeY;
-    this->scene = Mat::zeros( sizeY, sizeX, CV_8UC3 );//Mat(sizeX, sizeY, CV_32F);
+    this->scene = Mat::zeros( sizeY, sizeX, CV_8UC3 );
     this->framesShown = 0;
     this->saveSimulation = false;
 }
 
+/**
+ * Creates a new boid objects and puts it in the scene at a random location.
+ *
+ * @return true after completion (beta)...
+ */
 bool Scene::addRandomBoid() {
     int initialSize = static_cast<int>(boids.size());
     boids.push_back(Boid::initWithinConstraint(sizeX, sizeY));
@@ -36,6 +54,7 @@ bool Scene::addRandomBoid() {
     }
     return false;
 }
+
 int Scene::getBoidsCount() {
     return static_cast<int>(boids.size());
 }
@@ -48,10 +67,21 @@ int Scene::getSizeY() {
     return sizeY;
 }
 
+/**
+ * Computes the center of mass for all the boids in the scene.
+ *
+ * @return a point representing the center of mass for all boids.
+ */
 cv::Point2f Scene::getCenterOfMass() {
     return getCenterOfMass(boids);
 }
 
+/**
+ * Computes the center of mass for an array of boids.
+ *
+ * @param boids an array of boids for which the center of mass is to be computed.
+ * @return a point representing the center of mass for given boids.
+ */
 cv::Point2f Scene::getCenterOfMass(std::vector<Boid> boids) {
     cv::Point2f centerOfMass;
     for (Boid boid : boids) {
@@ -60,14 +90,21 @@ cv::Point2f Scene::getCenterOfMass(std::vector<Boid> boids) {
     return dividePoint(centerOfMass, boids.size());
 }
 
+/**
+ * Returns all the boid objects that exist in the scene.
+ *
+ * @return an array with all boid objects in the scene.
+ */
+
 std::vector<Boid> Scene::getAllBoids() {
     return boids;
 }
+
 /**
- * Sum numbers in a vector.
+ * The center of mass rule influences a boid object to the center of mass of its neighboring objects.
  *
- * @param values Container whose values are summed.
- * @return sum of `values`, or 0.0 if `values` is empty.
+ * @param boid the boid to which the rule is applied.
+ * @return a target point towards which the boid should move.
  */
 Point2f Scene::rule1(Boid boid) {
     Point2f perceivedCenterOfMassForBoid;
@@ -75,10 +112,12 @@ Point2f Scene::rule1(Boid boid) {
     perceivedCenterOfMassForBoid = getCenterOfMass(neighborhood);
     return perceivedCenterOfMassForBoid;
 }
+
 /**
- * Method name: name
- * Description: returns name
- * Parameters: none
+ * The collision distance rule influences a boid object to not collide with neighboring objects.
+ *
+ * @param boid the boid to which the rule is applied.
+ * @return a target point towards which the boid should move.
  */
 Point2f Scene::rule2(Boid boid) {
     Point2f collisionDistance;
@@ -92,6 +131,15 @@ Point2f Scene::rule2(Boid boid) {
     return collisionDistance;
 }
 
+/**
+ * Computes a target point towards a boid object should move based on the wind map in its neighborhood.
+ * It averages the wind around its location and based.
+ *
+ * Probably the most important rule in this project.
+ *
+ * @param boid the boid to which the rule is applied.
+ * @return a target point towards which the boid should move.
+ */
 Point2f Scene::ruleOfWind(Boid boid) {
     std::vector<Vector> winds = getWindVectors(boid.getPosition());
     Point2f averageWind = Vector::averageVectorDisplacement(winds);
@@ -99,15 +147,31 @@ Point2f Scene::ruleOfWind(Boid boid) {
     return targetPoint;
 }
 
+/**
+ * Updates the wind map used by the ruleOfWind() function.
+ *
+ * @param newWindMap an object that contains a flow of vectors.
+ * @return true after completion (beta)...
+ */
 bool Scene::updateWindMap(cv::Mat newWindMap) {
     windMap = newWindMap;
     return true;
 }
 
+/**
+ * Returns the wind map that is used by the ruleOfWind() function.
+ * @return an object that contains a flow of vectors.
+ */
 cv::Mat Scene::getWindMap() {
     return windMap;
 }
 
+/**
+ * Gets the wind vectors in the neighborhood of a location defined by FIXED_RANGE radius.
+ *
+ * @param location a point representing the center of the radius.
+ * @return an array of Vector objects found near the location.
+ */
 std::vector<Vector> Scene::getWindVectors(cv::Point2f location) {
     std::vector<Vector> closeWindVectors;
     for (int i = -FIXED_RANGE; i <= FIXED_RANGE; ++i) {
@@ -119,7 +183,6 @@ std::vector<Vector> Scene::getWindVectors(cv::Point2f location) {
             if (xAxis < 0) xAxis = 0;
             else if (xAxis > 1919) xAxis = 1079;
             Point2f origin = windMap.at<cv::Point2f>(yAxis, xAxis);
-//            Vector vector = Vector(origin, location);
             Vector vector = Vector::initWithDisplacementAndPosition(origin, location);
             closeWindVectors.push_back(vector);
         }
@@ -127,30 +190,34 @@ std::vector<Vector> Scene::getWindVectors(cv::Point2f location) {
     return closeWindVectors;
 }
 
-// TODO: create a startSimulation() and a stopSimulation() function
-
-bool Scene::update() {
-//    TODO: rewrite this function to apply rules, update positions, and draw boids on scene;
-
-//    TODO: refactor contents of this for into a function applyRules(Boid boid) which should be able to apply each rule individually
+/**
+ * Updates the simulation by applying rules to each boid's motion. These rules are combined to create target points towards each boid object will navigate.
+ *
+ * @return true after completion (beta)...
+ */
+bool Scene::updateSimulation() {
     for (Boid& boid : boids) {
         std::vector<Point2f> points;
-        Point2f p1 = ruleOfWind(boid);
-        points.push_back(p1);
-//        Point2f p2 = rule2(boid);
-//        points.push_back(p2);
-//        Point2f p3 = rule3(boid);
-//        points.push_back(p3);
+        points.push_back(ruleOfWind(boid));
+//        points.push_back(rule2(boid));
         boid.updateVelocity(points);
     }
     drawScene();
     return true;
 }
 
+/**
+ * yeah... clears the scene using Mat::zeros
+ */
 void Scene::clearScene() {
     scene = Mat::zeros( sizeY, sizeX, CV_8UC3 );
 }
 
+/**
+ * Starts the simulation by drawing the very first frame.
+ *
+ * @return true after completion (beta)...
+ */
 bool Scene::startSimulation() {
     saveSimulation = true;
     namedWindow("OpticalFlow", WINDOW_AUTOSIZE);
@@ -158,29 +225,31 @@ bool Scene::startSimulation() {
     return true;
 }
 
+/**
+ * Clears the scene of previous drawings, then redraws it using the updated boid positions.
+ * After saving the scene to an image on disk, it will display the scene and wait for user key press to continue;
+ */
 void Scene::drawScene() {
-    if (saveSimulation) {
-        std::__fs::filesystem::create_directories("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/boids/");
-    }
     clearScene();
-//    int k = 0;
     for (Boid boid : boids) {
         const cv::Point point = cv::Point(cvRound(boid.getPosition().x), cvRound(boid.getPosition().y));
         circle(scene, point, .5, cv::Scalar(255, 255, 255, 0), cv::FILLED);
     }
-
-
-//    imshow("Image " + std::to_string(framesShown++), scene);
+    FileHelper::writeFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/boids/boids_" + std::to_string(framesSaved++) + ".jpg", scene);
     imshow("OpticalFlow", scene);
-    OpticalFlowService::saveImageToDisk("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/boids/boids_" + std::to_string(framesSaved++) + ".jpg", scene);
-//    std::cout << "press any key to continue..." << std::endl;
-//    waitKey();
-//    for(int y = 0; y < cflowmap.rows; y += step)
-//        for(int x = 0; x < cflowmap.cols; x += step) {
-//            const cv::Point2f& fxy = flow.at<cv::Point2f>(y, x);
-//            const cv::Point roundedPoint = cv::Point(cvRound(x+fxy.x), cvRound(y+fxy.y));
-//            line(cflowmap, cv::Point(x,y), roundedPoint, color, 1, cv::LINE_AA);
-//            circle(cflowmap, cv::Point(x,y), 0.5, color, cv::FILLED);
-//        }
+    std::cout << "press any key to continue..." << std::endl;
+    waitKey();
 }
 
+/**
+ * Runs the simulation by updating the scene a specified number of times.
+ *
+ * @param steps an integer representing how many times should the simulation run.
+ * @return true after completion (beta)...
+ */
+bool Scene::runSimulation(int steps) {
+    for (int i = 0; i < steps; ++i) {
+        updateSimulation();
+    }
+    return true;
+}
