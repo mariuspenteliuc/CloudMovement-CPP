@@ -16,7 +16,7 @@ bool Boid::operator == (const Boid &ref) const {
     return(this->id == ref.getID());
 }
 std::string const&  Boid::to_str() const {
-    std::string value = "";
+    static std::string value = "";
     value.append("Boid #");
     value.append(std::to_string(id).c_str());
     value.append(" (");
