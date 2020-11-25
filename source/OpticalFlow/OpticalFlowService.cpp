@@ -76,7 +76,8 @@ Mat OpticalFlowService::averageFlows(string inputPath) {
     vector<Mat> flows = OpticalFlowService::loadFlowsFromDirectory(inputPath);
     int cols = flows[0].cols;
     int rows = flows[0].rows;
-    Mat flowAverage = Mat::zeros(cols, rows, CV_32FC4);
+    Mat flowAverage = flows[0];
+//    Mat flowAverage = Mat::zeros(cols, rows, CV_32FC4);
 //    flowAverage = cvtColorBGR2GRAY(flowAverage);
     for(int row = 0; row < rows; ++row) {
         for(int col = 0; col < cols; ++col) {
