@@ -237,8 +237,10 @@ void Scene::drawScene() {
     }
     FileHelper::writeFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/boids/boids_" + std::string(5 - to_string(framesSaved).length(), '0') + std::to_string(framesSaved++) + ".jpg", scene);
     imshow("OpticalFlow", scene);
-    std::cout << "press any key to continue..." << std::endl;
-    waitKey();
+    if (Scene::previewSimulation) {
+        std::cout << "press any key to continue..." << std::endl;
+        waitKey();
+    }
 }
 
 /**
@@ -247,7 +249,8 @@ void Scene::drawScene() {
  * @param steps an integer representing how many times should the simulation run.
  * @return true after completion (beta)...
  */
-bool Scene::runSimulation(int steps) {
+bool Scene::runSimulation(int steps, bool preview) {
+    this->previewSimulation = preview;
     for (int i = 0; i < steps; ++i) {
         updateSimulation();
     }

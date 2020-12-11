@@ -25,6 +25,7 @@ private:
     int framesShown;
     bool saveSimulation;
     int framesSaved = 0;
+    bool previewSimulation = false;
 
     bool addBoid(Boid boid);
     cv::Point2f getCenterOfMass();
@@ -48,7 +49,7 @@ public:
     int getBoidsCount();
     std::vector<Boid> getNeighbors(Boid boid, float range);
     std::vector<Boid> getAllBoids();
-    bool runSimulation(int steps);
+    bool runSimulation(int steps, bool preview = false);
     bool startSimulation();
 };
 
