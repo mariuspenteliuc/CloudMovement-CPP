@@ -30,7 +30,7 @@ int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath
 
         Mat flow = getOpticalFlowFarneback(im1, im2);
         if (saveFlows) {
-            FileHelper::writeFile(outputPath + "/flows/flow_" + to_string(k) + ".npy", flow);
+            FileHelper::writeFile(outputPath + "/flows/flow_" + string(5 - to_string(k).length(), '0') + to_string(k) + ".npy", flow);
         }
         if (saveOverlays || previewOverlays) {
             Mat grayImage;// = FileHelper::convertToGray(im2);
@@ -38,7 +38,7 @@ int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath
             Mat overlayedImage = overlayFlowLines(flow, grayImage);
 
             if (saveOverlays) {
-                FileHelper::writeFile(outputPath + "/overlays/image_" + to_string(k) + ".jpg", overlayedImage);
+                FileHelper::writeFile(outputPath + "/overlays/image_" + string(5 - to_string(k).length(), '0') + to_string(k) + ".jpg", overlayedImage);
             }
             if (previewOverlays) {
                 namedWindow("OpticalFlow", WINDOW_AUTOSIZE);
