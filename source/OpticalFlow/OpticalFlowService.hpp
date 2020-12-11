@@ -13,6 +13,7 @@
 #include <opencv2/opencv.hpp>
 #include <filesystem>
 #include "FileHelper.hpp"
+#include "MathHelper.hpp"
 
 using namespace std;
 

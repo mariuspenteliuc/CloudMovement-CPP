@@ -59,29 +59,30 @@ int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath
  */
 Mat OpticalFlowService::averageFlows(string inputPath) {
     String path(inputPath + "/*." + "npy");
-    vector<Mat> flows = FileHelper::readFiles(path);
-    int cols = flows[0].cols;
-    int rows = flows[0].rows;
-    Mat flowAverage = flows[0];
-    for(int row = 0; row < rows; ++row) {
-        for(int col = 0; col < cols; ++col) {
-            int movementCount = 0;
-            float averageX = 0.0;
-            float averageY = 0.0;
-            for (Mat flow : flows) {
+    vector<string> fileNames;
+    glob(path, fileNames, false);
+    long numberOfFlows = fileNames.size();
+    Mat flowAverage = FileHelper::readFile(fileNames[0]);
+    int cols = flowAverage.cols;
+    int rows = flowAverage.rows;
+    int counts[1080][1920]{};
+    for (long index = 1; index < numberOfFlows; ++index) {
+        Mat flow = FileHelper::readFile(fileNames[index]);
+        for(int row = 0; row < rows; ++row) {
+            for(int col = 0; col < cols; ++col) {
                 Point2f& fxy = flow.at<Point2f>(row, col);
                 if (fxy.x > 0.001 || fxy.y > 0.001) {
-                    movementCount++;
-                    averageX += fxy.x;
-                    averageY += fxy.y;
+                    counts[row][col]++;
+                    flowAverage.at<Point2f>(row, col) = addPoints(flowAverage.at<Point2f>(row, col), fxy);
                 }
             }
-            if (movementCount == 0) {
-                movementCount++;
-            }
-            averageX /= movementCount;
-            averageY /= movementCount;
-            flowAverage.at<Point2f>(row, col) = Point2f(averageX, averageY);
+        }
+    }
+    for(int row = 0; row < rows; ++row) {
+        for(int col = 0; col < cols; ++col) {
+            Point2f& fxy = flowAverage.at<Point2f>(row, col);
+            fxy.x = fxy.x / (counts[row][col] + 1);
+            fxy.y = fxy.y / (counts[row][col] + 1);
         }
     }
     return flowAverage;
