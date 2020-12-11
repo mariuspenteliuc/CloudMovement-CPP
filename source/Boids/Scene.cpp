@@ -235,7 +235,8 @@ void Scene::drawScene() {
         const cv::Point point = cv::Point(cvRound(boid.getPosition().x), cvRound(boid.getPosition().y));
         circle(scene, point, .5, cv::Scalar(255, 255, 255, 0), cv::FILLED);
     }
-    FileHelper::writeFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/boids/boids_" + std::string(5 - to_string(framesSaved).length(), '0') + std::to_string(framesSaved++) + ".jpg", scene);
+    FileHelper::writeFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/boids/boids_" + std::string(5 - to_string(framesSaved).length(), '0') + std::to_string(framesSaved) + ".jpg", scene);
+    framesSaved++;
     imshow("OpticalFlow", scene);
     if (Scene::previewSimulation) {
         std::cout << "press any key to continue..." << std::endl;
