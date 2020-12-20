@@ -30,7 +30,7 @@ private:
 public:
     OpticalFlowService();
     static string getOpenCVVersion();
-    int computeFlowForImages(string inputPath, string outputPath, string fileType, bool saveOverlays, bool saveFlows, bool previewOverlays);
+    int computeFlowForImages(string inputPath, string outputPath, string fileType, bool saveOverlays, bool saveFlows, bool previewOverlays, int numberOfThreads);
 };
 
 #endif /* OpticalFlowService_hpp */

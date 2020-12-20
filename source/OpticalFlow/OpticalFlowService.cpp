@@ -7,9 +7,13 @@
 
 #include "OpticalFlowService.hpp"
 #include <opencv2/opencv.hpp>
+#include <iostream>
 #include <filesystem>
+#include <omp.h>
+#include <unistd.h>
 
 using namespace std;
+using namespace std::chrono;
 using namespace cv;
 
 OpticalFlowService::OpticalFlowService() {
@@ -25,7 +29,8 @@ string OpticalFlowService::getOpenCVVersion() {
 /// @param outputPath The path to the folder where results should be saved.
 /// @param saveOverlays `true` if images should have flow lines overlayed on them and be saved to disk, `false` otherwise.
 /// @param saveFlows `true` if flows should be saved to disk, `false` otherwise.
-int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath, string fileType = "jpg", bool saveOverlays = false, bool saveFlows = true, bool previewOverlays = false) {
+/// @param numberOfThreads Number of threads. Default is `1` (secvential). 
+int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath, string fileType = "jpg", bool saveOverlays = false, bool saveFlows = true, bool previewOverlays = false, int numberOfThreads = 1) {
     if (saveFlows) {
         std::__fs::filesystem::create_directories(outputPath + "/flows/");
     }
@@ -36,9 +41,13 @@ int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath
     cv::String path(inputPath + "/*." + fileType);
     cv::glob(path,fileNames,false);
     cv::Mat im1 = cv::imread(fileNames[0]);
+
+
+    omp_set_num_threads(numberOfThreads); // set number of threads in "parallel" blocks
+    #pragma omp parallel for
     for (size_t k=1; k<fileNames.size(); ++k) {
-         cv::Mat im2 = cv::imread(fileNames[k]);
-         if (im1.empty() || im2.empty()) continue; //only proceed if sucsessful
+        cv::Mat im2 = cv::imread(fileNames[k]);
+        if (im1.empty() || im2.empty()) continue; //only proceed if sucsessful
 
         Mat flow = getOpticalFlowFarneback(im1, im2);
         if (saveFlows) {
@@ -93,13 +102,25 @@ cv::Mat OpticalFlowService::overlayFlowLines(cv::Mat flow, cv::Mat image) {
 }
 
 void OpticalFlowService::drawOpticalFlowMap(const cv::Mat& flow, cv::Mat& cflowmap, int step, double, const cv::Scalar& color) {
+    int x;
+    // auto start = high_resolution_clock::now(); 
+    
+    #pragma omp simd collapse(2)
     for(int y = 0; y < cflowmap.rows; y += step)
         for(int x = 0; x < cflowmap.cols; x += step) {
             const cv::Point2f& fxy = flow.at<cv::Point2f>(y, x);
             const cv::Point roundedPoint = cv::Point(cvRound(x+fxy.x), cvRound(y+fxy.y));
             line(cflowmap, cv::Point(x,y), roundedPoint, color, 1, cv::LINE_AA);
             circle(cflowmap, cv::Point(x,y), 0.5, color, cv::FILLED);
+        
         }
+
+    // auto stop = high_resolution_clock::now(); 
+
+    // auto duration = duration_cast<microseconds>(stop - start); 
+  
+    // cout << "Time taken by function: "
+    //      << duration.count() << " microseconds" << endl; 
 }
 
 

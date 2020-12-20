@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
-#include "MathHelper.hpp"
+#include "../Helpers/MathHelper.hpp"
 
 class Vector {
 private:

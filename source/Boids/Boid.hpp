@@ -12,7 +12,7 @@
 #include <opencv2/opencv.hpp>
 #include "Vector.hpp"
 #include <cstdlib>
-#include "MathHelper.hpp"
+#include "../Helpers/MathHelper.hpp"
 
 class Boid {
 private:

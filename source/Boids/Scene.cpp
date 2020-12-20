@@ -6,7 +6,7 @@
 //
 
 #include "Scene.hpp"
-#include "MathHelper.hpp"
+#include "../Helpers/MathHelper.hpp"
 
 const float Scene::FIXED_RANGE = 25;
 const float Scene::COLLISION_RANGE = 5;
@@ -152,16 +152,22 @@ bool Scene::startSimulation() {
 
 void Scene::drawScene() {
     clearScene();
-    for (Boid boid : boids) {
-        const cv::Point point = cv::Point(cvRound(boid.getPosition().x), cvRound(boid.getPosition().y));
-        circle(scene, point, .5, cv::Scalar(255, 255, 255, 0), cv::FILLED);
-    }
+    // int i;
+    // #pragma omp parallel for private(i)
+    // for (i = 0; i < boids.size(); ++i){
+    //     const cv::Point point = cv::Point(cvRound(boids[i].getPosition().x), cvRound(boids[i].getPosition().y));
+    //     circle(scene, point, .5, cv::Scalar(255, 255, 255, 0), cv::FILLED);
+    // }
+        for (Boid boid : boids) {
+            const cv::Point point = cv::Point(cvRound(boid.getPosition().x), cvRound(boid.getPosition().y));
+            circle(scene, point, .5, cv::Scalar(255, 255, 255, 0), cv::FILLED);
+        }
 
 
 //    imshow("Image " + std::to_string(framesShown++), scene);
-    imshow("OpticalFlow", scene);
-    std::cout << "press any key to continue..." << std::endl;
-    waitKey();
+    // imshow("OpticalFlow", scene);
+    // std::cout << "press any key to continue..." << std::endl;
+    // waitKey();
 //    for(int y = 0; y < cflowmap.rows; y += step)
 //        for(int x = 0; x < cflowmap.cols; x += step) {
 //            const cv::Point2f& fxy = flow.at<cv::Point2f>(y, x);
