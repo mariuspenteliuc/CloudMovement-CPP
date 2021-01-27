@@ -159,6 +159,17 @@ bool Scene::updateWindMap(cv::Mat newWindMap) {
 }
 
 /**
+ * Updates the wind map used by the ruleOfWind() function.
+ *
+ * @param newWindMap an object that contains a flow of vectors.
+ * @return true after completion (beta)...
+ */
+bool Scene::updateWindMapUsingBoids() {
+    
+    return true;
+}
+
+/**
  * Returns the wind map that is used by the ruleOfWind() function.
  * @return an object that contains a flow of vectors.
  */
