@@ -165,7 +165,29 @@ bool Scene::updateWindMap(cv::Mat newWindMap) {
  * @return true after completion (beta)...
  */
 bool Scene::updateWindMapUsingBoids() {
-    
+    /// for each wind map point, get points in proximity (preferably ahead of them)
+    /// copy vectors to next position, then
+    /// average them, but put more weight on the faster vector
+    Mat currentwindmap = getWindMap();
+    for(int row = 0; row < currentwindmap.rows; ++row) {
+        for(int col = 0; col < currentwindmap.cols; ++col) {
+            Point2f& currentPoint = currentwindmap.at<Point2f>(row, col);
+            Mat data = currentwindmap.colRange(0, 4).rowRange(0, 4);
+            Point2f fastestVector = Point2f(0,0);
+            // TODO: correct the range for getting neighbors and resolve margin conflicts.
+            for (int i = 0; i < data.rows; ++i) {
+                for (int j = 0; j < data.cols; ++j) {
+                    Point2f& fxy = data.at<Point2f>(i,j);
+                    float currentDisplacement = Vector::getEuclidianDistance(Point2f(0,0), currentPoint);
+                    float neighborDisplacement = Vector::getEuclidianDistance(Point2f(0,0), fxy);
+                    if (neighborDisplacement >= currentDisplacement) {
+                        fastestVector = fxy;
+                    }
+                }
+            }
+            currentPoint = averagePointsUsingWeights(currentPoint, fastestVector);
+        }
+    }
     return true;
 }
 
