@@ -30,30 +30,32 @@ int runExperiments() {
 //    FileHelper::writeFile("/Volumes/Transfers/Experiments/day_window_1/test_1/averages/average_wind_map.npy", average);
 
 //    Mat average = FileHelper::readFile("/Volumes/Transfers/Experiments/day_window_1/test_1/averages/average_wind_map.npy");
+    Mat average = FileHelper::readFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/visualization/averageFlow.jpg");
 //
 //    cout << "Populating scene with 5000 boids..." << endl;
-//    Scene scene = Scene(1920, 1080);
+    Scene scene = Scene(1920, 1080);
 //    for (int i = 0; i < 5000; ++i) {
 //        scene.addRandomBoid();
 //    }
 //
 //    cout << "Starting Simulation..." << endl;
-//    scene.updateWindMap(average);
+    scene.updateWindMap(average);
+    scene.updateWindMapUsingBoids();
 //    scene.startSimulation();
 //    scene.runSimulation(50);
     
-    Mat blankImage = FileHelper::readFile("/Volumes/Transfers/Experiments/day_window_1/test_1/blank.jpg");
-    Mat grayImage;// = FileHelper::convertToGray(im2);
-
-    vector<cv::String> fileNames;
-    cv::String path("/Volumes/Transfers/Experiments/day_window_1/test_1/historic_flows/*.npy");
-    cv::glob(path,fileNames,false);
-    for (size_t k=0; k<fileNames.size(); ++k) {
-        cv::Mat flow = FileHelper::readFile(fileNames[k]);
-        cv::cvtColor(blankImage, grayImage, cv::COLOR_BGR2GRAY);
-        Mat overlayedImage = OpticalFlowService::overlayFlowLines(flow, grayImage);
-        FileHelper::writeFile("/Volumes/Transfers/Experiments/day_window_1/test_1/simulated_wind_map/wind_map_" + string(5 - to_string(k).length(), '0') + to_string(k) + ".jpg", overlayedImage);
-    }
+//    Mat blankImage = FileHelper::readFile("/Volumes/Transfers/Experiments/day_window_1/test_1/blank.jpg");
+//    Mat grayImage;// = FileHelper::convertToGray(im2);
+//
+//    vector<cv::String> fileNames;
+//    cv::String path("/Volumes/Transfers/Experiments/day_window_1/test_1/historic_flows/*.npy");
+//    cv::glob(path,fileNames,false);
+//    for (size_t k=0; k<fileNames.size(); ++k) {
+//        cv::Mat flow = FileHelper::readFile(fileNames[k]);
+//        cv::cvtColor(blankImage, grayImage, cv::COLOR_BGR2GRAY);
+//        Mat overlayedImage = OpticalFlowService::overlayFlowLines(flow, grayImage);
+//        FileHelper::writeFile("/Volumes/Transfers/Experiments/day_window_1/test_1/simulated_wind_map/wind_map_" + string(5 - to_string(k).length(), '0') + to_string(k) + ".jpg", overlayedImage);
+//    }
 
     return 0;
 }
