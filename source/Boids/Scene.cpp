@@ -169,12 +169,48 @@ bool Scene::updateWindMapUsingBoids() {
     /// copy vectors to next position, then
     /// average them, but put more weight on the faster vector
     Mat currentwindmap = getWindMap();
+    Mat updatedwindmap;
+    currentwindmap.copyTo(updatedwindmap);
+    for(int row = 0; row < currentwindmap.rows; ++row) {
+        for(int col = 0; col < currentwindmap.cols; ++col) {
+//            This part moves wind vectors according to their previous displacement
+            Point2f& fxy = currentwindmap.at<Point2f>(row, col);
+            if (isnan(fxy.x) || isnan(fxy.y)) {
+                cout << "We have NaN at (" << row << ", " << col << ")" << endl;
+                if (isnan(fxy.x)) fxy.x = fxy.y;
+                else fxy.y = fxy.x;
+            }
+            if ((col + fxy.x < 1918) && (row + fxy.y < 1078)) {
+//            cv::Point2f newPoint = cv::Point2f(cvRound(col+fxy.x), cvRound(row+fxy.y));
+            cv::Point2f newPoint = cv::Point2f(ceil(col+fxy.x), ceil(row+fxy.y));
+//            cout << "changing " << updatedwindmap.at<Point2f>(newPoint) << " into " << fxy << endl;
+            updatedwindmap.at<Point2f>(newPoint) = fxy;
+            }
+
+//            TODO: some problem with NaN inside the wind map breaks the algorithm.
+//                  replacing NaN with 0 creates lines on the visualization.
+        }
+    }
+    updatedwindmap.copyTo(this->windMap);
+//    currentwindmap = updatedwindmap;
+
+    int radius = 5;
     for(int row = 0; row < currentwindmap.rows; ++row) {
         for(int col = 0; col < currentwindmap.cols; ++col) {
             Point2f& currentPoint = currentwindmap.at<Point2f>(row, col);
-            Mat data = currentwindmap.colRange(0, 4).rowRange(0, 4);
+//            This part averages the wind map using a moving window
+//            following works for odd numbers
+            int colStartIndex = col - (radius - 1)/2;
+            if (colStartIndex < 0) colStartIndex = 0;
+            int rowStartIndex = row - (radius - 1)/2;
+            if (rowStartIndex < 0) rowStartIndex = 0;
+            int colEndIndex = col + (radius - 1)/2;
+            if (colEndIndex > 1920-1) colEndIndex = 1920-1;
+            int rowEndIndex = row + (radius - 1)/2;
+            if (rowEndIndex > 1080-1) rowEndIndex = 1080-1;
+
+            Mat data = currentwindmap.colRange(colStartIndex, colEndIndex + 1).rowRange(rowStartIndex, rowEndIndex + 1);
             Point2f fastestVector = Point2f(0,0);
-            // TODO: correct the range for getting neighbors and resolve margin conflicts.
             for (int i = 0; i < data.rows; ++i) {
                 for (int j = 0; j < data.cols; ++j) {
                     Point2f& fxy = data.at<Point2f>(i,j);

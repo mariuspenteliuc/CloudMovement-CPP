@@ -29,9 +29,9 @@ int runExperiments() {
 //
 //    FileHelper::writeFile("/Volumes/Transfers/Experiments/day_window_1/test_1/averages/average_wind_map.npy", average);
 
-//    Mat average = FileHelper::readFile("/Volumes/Transfers/Experiments/day_window_1/test_1/averages/average_wind_map.npy");
-    Mat average = FileHelper::readFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/visualization/averageFlow.jpg");
-//
+//    Mat flow = FileHelper::readFile("/Volumes/Transfers/Experiments/day_window_1/test_1/averages/average_wind_map.npy");
+//    Mat average = FileHelper::readFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/flows/average_flow.npy");
+    Mat flow = FileHelper::readFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/flows/flow_00001.npy");
 //    cout << "Populating scene with 5000 boids..." << endl;
     Scene scene = Scene(1920, 1080);
 //    for (int i = 0; i < 5000; ++i) {
@@ -39,8 +39,17 @@ int runExperiments() {
 //    }
 //
 //    cout << "Starting Simulation..." << endl;
-    scene.updateWindMap(average);
+    scene.updateWindMap(flow);
+    Mat blankImage = FileHelper::readFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/blank.jpg");
+    Mat grayImage;
+    cv::cvtColor(blankImage, grayImage, cv::COLOR_BGR2GRAY);
+    Mat overlayedImage = OpticalFlowService::overlayFlowLines(flow, grayImage);
+    FileHelper::writeFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/average_overlay.jpg", overlayedImage);
     scene.updateWindMapUsingBoids();
+    Mat updatedUsingBoids = scene.getWindMap();
+    cv::cvtColor(blankImage, grayImage, cv::COLOR_BGR2GRAY);
+    overlayedImage = OpticalFlowService::overlayFlowLines(updatedUsingBoids, grayImage);
+    FileHelper::writeFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/averageUpdated_overlay.jpg", overlayedImage);
 //    scene.startSimulation();
 //    scene.runSimulation(50);
     
