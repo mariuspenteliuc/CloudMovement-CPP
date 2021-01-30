@@ -328,7 +328,7 @@ void Scene::drawScene() {
         circle(scene, point, .5, cv::Scalar(255, 255, 255, 0), cv::FILLED);
     }
 //    FileHelper::writeFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/boids/boids_" + std::string(5 - to_string(framesSaved).length(), '0') + std::to_string(framesSaved) + ".jpg", scene);
-    FileHelper::writeFile("/Volumes/Transfers/Experiments/day_window_1/test_1/simulated_clouds/boids_" + std::string(5 - to_string(framesSaved).length(), '0') + std::to_string(framesSaved) + ".jpg", scene);
+    FileHelper::writeFile(outputFolder + "/simulated_clouds/boids_" + std::string(5 - to_string(framesSaved).length(), '0') + std::to_string(framesSaved) + ".jpg", scene);
     framesSaved++;
     imshow("OpticalFlow", scene);
     if (Scene::previewSimulation) {
