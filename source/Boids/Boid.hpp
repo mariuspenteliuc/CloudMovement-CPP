@@ -35,6 +35,7 @@ public:
     bool updateVelocity(std::vector<cv::Point2f> points);
     static float getDistanceBetween(Boid firstBoid, Boid secondBoid);
     static Boid initWithinConstraint(int x, int y);
+    static Boid initWithinConstraint(int maxX, int maxY, int margin);
     std::string const&  to_str() const;
     cv::Point2f getPosition();
 };
