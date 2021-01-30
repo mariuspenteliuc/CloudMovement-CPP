@@ -25,7 +25,7 @@ public:
     static cv::Mat overlayFlowLines(cv::Mat flow, cv::Mat image);
     OpticalFlowService();
     static int computeFlowForImages(string inputPath, string outputPath, string fileType, bool saveOverlays, bool saveFlows, bool previewOverlays);
-    static cv::Mat averageFlows(string inputPath);
+    static cv::Mat averageFlows(string inputPath, size_t index = 0, size_t numberOfFlows = 0);
 };
 
 #endif /* OpticalFlowService_hpp */

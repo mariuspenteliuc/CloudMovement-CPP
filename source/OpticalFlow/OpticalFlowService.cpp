@@ -52,21 +52,25 @@ int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath
 }
 
 /**
- * Averages multiple flows found in a directory
+ * Averages multiple flows found in a directory by temporal values.
+ *
+ * Instead of averaging neighborhoods of values in a frame, a single point is averaged with its values over multiple frames.
  *
  * @param inputPath the path to the directory inside of which the flows are found.
+ * @param index start index for files to be read. Default is 0 to read from the beginning.
+ * @param numberOfFlows the number of flows to be processed. Default is 0 to read all flows available.
  * @return a flow computed as the average.
  */
-Mat OpticalFlowService::averageFlows(string inputPath) {
+Mat OpticalFlowService::averageFlows(string inputPath, size_t index, size_t numberOfFlows) {
     String path(inputPath + "/*." + "npy");
     vector<string> fileNames;
     glob(path, fileNames, false);
-    long numberOfFlows = fileNames.size();
+    if (numberOfFlows == 0) numberOfFlows = fileNames.size();
     Mat flowAverage = FileHelper::readFile(fileNames[0]);
     int cols = flowAverage.cols;
     int rows = flowAverage.rows;
     int counts[1080][1920]{};
-    for (long index = 1; index < numberOfFlows; ++index) {
+    for (; index < numberOfFlows; ++index) {
         Mat flow = FileHelper::readFile(fileNames[index]);
         for(int row = 0; row < rows; ++row) {
             for(int col = 0; col < cols; ++col) {
