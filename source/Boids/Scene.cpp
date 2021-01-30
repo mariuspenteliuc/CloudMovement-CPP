@@ -55,6 +55,15 @@ bool Scene::addRandomBoid() {
     return false;
 }
 
+bool Scene::addBoid(int x, int y, int margin) {
+    int initialSize = static_cast<int>(boids.size());
+    boids.push_back(Boid::initWithinConstraint(x, y, margin));
+    if (initialSize < boids.size()) {
+        return true;
+    }
+    return false;
+}
+
 int Scene::getBoidsCount() {
     return static_cast<int>(boids.size());
 }

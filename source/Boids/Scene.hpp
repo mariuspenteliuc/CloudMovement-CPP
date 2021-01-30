@@ -47,6 +47,7 @@ public:
     bool updateWindMap(cv::Mat newWindMap);
     bool updateWindMapUsingBoids();
     bool addRandomBoid();
+    bool addBoid(int x, int y, int margin);
     int getBoidsCount();
     std::vector<Boid> getNeighbors(Boid boid, float range);
     std::vector<Boid> getAllBoids();
