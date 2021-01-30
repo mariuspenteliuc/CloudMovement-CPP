@@ -43,6 +43,7 @@ private:
     Mat averageWindMap(Mat windMap, int radius = 5);
 public:
     Scene(int sizeX, int sizeY);
+    bool computeDifferenceOfWindMaps(Mat& first, Mat& second, Mat& result);
     std::vector<Vector> getWindVectors(cv::Point2f location);
     int getSizeX();
     int getSizeY();

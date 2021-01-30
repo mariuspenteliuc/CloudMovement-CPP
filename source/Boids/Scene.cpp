@@ -337,6 +337,23 @@ void Scene::drawScene() {
     }
 }
 
+/// Computes the difference between two wind maps and outputs that to another wind map.
+///
+/// The more similar two wind maps are, the lower displacement values will the resulted map have and vice versa.
+/// @param first one wind map being the left hand side term.
+/// @param second another wind map being the right hand side term.
+/// @param result the object where the values will be saved.
+bool Scene::computeDifferenceOfWindMaps(Mat& first, Mat& second, Mat& result) {
+    if (first.rows != second.rows || first.cols != second.cols) return false;
+    first.copyTo(result);
+    for(int row = 0; row < first.rows; ++row) {
+        for(int col = 0; col < first.cols; ++col) {
+            result.at<Point2f>(row, col) = removePoints(first.at<Point2f>(row, col), second.at<Point2f>(row, col));
+        }
+    }
+    return true;
+}
+
 /**
  * Runs the simulation by updating the scene a specified number of times.
  *
