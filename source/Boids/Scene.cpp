@@ -167,48 +167,44 @@ bool Scene::updateWindMap(cv::Mat newWindMap) {
     return true;
 }
 
-/**
- * Updates the wind map used by the ruleOfWind() function.
- *
- * @param newWindMap an object that contains a flow of vectors.
- * @return true after completion (beta)...
- */
-bool Scene::updateWindMapUsingBoids() {
-    /// for each wind map point, get points in proximity (preferably ahead of them)
-    /// copy vectors to next position, then
-    /// average them, but put more weight on the faster vector
-    Mat currentwindmap = getWindMap();
-    Mat updatedwindmap;
-    currentwindmap.copyTo(updatedwindmap);
-    for(int row = 0; row < currentwindmap.rows; ++row) {
-        for(int col = 0; col < currentwindmap.cols; ++col) {
-//            This part moves wind vectors according to their previous displacement
-            Point2f& fxy = currentwindmap.at<Point2f>(row, col);
+/// Updates the position of wind vectors by their velocity and direction of movement.
+/// @param windMap the collection of vectors to be updated.
+Mat Scene::updateWindPosition(Mat windMap) {
+    Mat updatedWindMap;
+    windMap.copyTo(updatedWindMap);
+    for(int row = 0; row < windMap.rows; ++row) {
+        for(int col = 0; col < windMap.cols; ++col) {
+            Point2f& fxy = windMap.at<Point2f>(row, col);
             if (isnan(fxy.x) || isnan(fxy.y)) {
                 cout << "We have NaN at (" << row << ", " << col << ")" << endl;
                 if (isnan(fxy.x)) fxy.x = fxy.y;
                 else fxy.y = fxy.x;
             }
             if ((col + fxy.x < 1918) && (row + fxy.y < 1078)) {
-//            cv::Point2f newPoint = cv::Point2f(cvRound(col+fxy.x), cvRound(row+fxy.y));
-            cv::Point2f newPoint = cv::Point2f(ceil(col+fxy.x), ceil(row+fxy.y));
-//            cout << "changing " << updatedwindmap.at<Point2f>(newPoint) << " into " << fxy << endl;
-            updatedwindmap.at<Point2f>(newPoint) = fxy;
+                //            cv::Point2f newPoint = cv::Point2f(cvRound(col+fxy.x), cvRound(row+fxy.y));
+                cv::Point2f newPoint = cv::Point2f(ceil(col+fxy.x), ceil(row+fxy.y));
+                if (newPoint.x >= 0 && newPoint.y >=0) {
+                    updatedWindMap.at<Point2f>(newPoint) = fxy;
+                }
+                //            cout << "changing " << updatedwindmap.at<Point2f>(newPoint) << " into " << fxy << endl;
             }
-
-//            TODO: some problem with NaN inside the wind map breaks the algorithm.
-//                  replacing NaN with 0 creates lines on the visualization.
         }
     }
-    updatedwindmap.copyTo(this->windMap);
-//    currentwindmap = updatedwindmap;
+    return updatedWindMap;
+}
 
-    int radius = 5;
-    for(int row = 0; row < currentwindmap.rows; ++row) {
-        for(int col = 0; col < currentwindmap.cols; ++col) {
-            Point2f& currentPoint = currentwindmap.at<Point2f>(row, col);
-//            This part averages the wind map using a moving window
-//            following works for odd numbers
+
+/// Averages the velocity and direction of neighboring groups of vectors.
+/// The average is calculated between the vector and its neighbor with has the largest displacement value using weights of 20% and 80% respectively.
+///
+/// If radius extends beyond the boundary, missing neighbors will be ignored.
+/// @param windMap the collection of vectors to be averaged.
+/// @param radius the neighborhood window for the average, default is 5.
+Mat Scene::averageWindMap(Mat windMap, int radius) {
+    for(int row = 0; row < windMap.rows; ++row) {
+        for(int col = 0; col < windMap.cols; ++col) {
+            Point2f& currentPoint = windMap.at<Point2f>(row, col);
+            //            following works for odd numbers
             int colStartIndex = col - (radius - 1)/2;
             if (colStartIndex < 0) colStartIndex = 0;
             int rowStartIndex = row - (radius - 1)/2;
@@ -218,8 +214,9 @@ bool Scene::updateWindMapUsingBoids() {
             int rowEndIndex = row + (radius - 1)/2;
             if (rowEndIndex > 1080-1) rowEndIndex = 1080-1;
 
-            Mat data = currentwindmap.colRange(colStartIndex, colEndIndex + 1).rowRange(rowStartIndex, rowEndIndex + 1);
+            Mat data = windMap.colRange(colStartIndex, colEndIndex + 1).rowRange(rowStartIndex, rowEndIndex + 1);
             Point2f fastestVector = Point2f(0,0);
+            cv::Point2f average = Point2f(0, 0);
             for (int i = 0; i < data.rows; ++i) {
                 for (int j = 0; j < data.cols; ++j) {
                     Point2f& fxy = data.at<Point2f>(i,j);
@@ -228,11 +225,26 @@ bool Scene::updateWindMapUsingBoids() {
                     if (neighborDisplacement >= currentDisplacement) {
                         fastestVector = fxy;
                     }
+                    average = addPoints(average, fxy);
                 }
             }
-            currentPoint = averagePointsUsingWeights(currentPoint, fastestVector);
+//            currentPoint = averagePointsUsingWeights(currentPoint, fastestVector);
+            currentPoint = dividePoint(average, data.rows * data.cols);
+//            50% weight on the fastest wind vector
+            currentPoint = dividePoint(addPoints(currentPoint, fastestVector), 2);
         }
     }
+    return windMap;
+}
+
+/**
+ * Updates the wind map used by the ruleOfWind() function according to Boids Algorithm.
+ *
+ * @return true after completion (beta)...
+ */
+bool Scene::updateWindMapUsingBoids(int neighbordhoodRadius, string outputFolder) {
+    updateWindPosition(getWindMap()).copyTo(this->windMap);
+    averageWindMap(getWindMap(), neighbordhoodRadius);
     return true;
 }
 

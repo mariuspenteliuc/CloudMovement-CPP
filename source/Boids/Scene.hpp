@@ -38,6 +38,8 @@ private:
     void clearScene();
     void drawScene();
     bool updateSimulation();
+    Mat updateWindPosition(Mat windMap);
+    Mat averageWindMap(Mat windMap, int radius = 5);
 public:
     Scene(int sizeX, int sizeY);
     std::vector<Vector> getWindVectors(cv::Point2f location);
@@ -45,7 +47,7 @@ public:
     int getSizeY();
     cv::Mat getWindMap();
     bool updateWindMap(cv::Mat newWindMap);
-    bool updateWindMapUsingBoids();
+    bool updateWindMapUsingBoids(int neighborhoodRadius, string outputFolder);
     bool addRandomBoid();
     bool addBoid(int x, int y, int margin);
     int getBoidsCount();
