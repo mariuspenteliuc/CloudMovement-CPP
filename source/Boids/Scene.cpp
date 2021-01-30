@@ -308,7 +308,9 @@ void Scene::clearScene() {
  *
  * @return true after completion (beta)...
  */
-bool Scene::startSimulation() {
+bool Scene::startSimulation(string outputFolder, int startIndex) {
+    this->framesSaved = startIndex;
+    this->outputFolder = outputFolder;
     saveSimulation = true;
     namedWindow("OpticalFlow", WINDOW_AUTOSIZE);
     drawScene();

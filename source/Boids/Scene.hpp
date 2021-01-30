@@ -17,6 +17,7 @@
 class Scene {
 private:
     std::vector<Boid> boids;
+    string outputFolder;
     int sizeX, sizeY;
     static const float FIXED_RANGE;
     static const float COLLISION_RANGE;
@@ -54,7 +55,7 @@ public:
     std::vector<Boid> getNeighbors(Boid boid, float range);
     std::vector<Boid> getAllBoids();
     bool runSimulation(int steps, bool preview = false);
-    bool startSimulation();
+    bool startSimulation(string outputFolder, int startIndex);
 };
 
 #endif /* Scene_hpp */
