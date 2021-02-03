@@ -16,7 +16,7 @@ bool Boid::operator == (const Boid &ref) const {
     return(this->id == ref.getID());
 }
 std::string const&  Boid::to_str() const {
-    std::string value = "";
+    static std::string value = "";
     value.append("Boid #");
     value.append(std::to_string(id).c_str());
     value.append(" (");
@@ -24,22 +24,17 @@ std::string const&  Boid::to_str() const {
     value.append(", ");
     value.append(std::to_string(position.y).c_str());
     value.append(")\0");
-//    std::cout << "test: "<<value<<std::endl;
-//    std::string value = "Boid #" + std::to_string(id) + "(" + std::to_string(position.x) + ", " + std::to_string(position.y) + ")";
     return value;
 }
 
 bool Boid::updateVelocity(std::vector<cv::Point2f> points) {
     cv::Point2f average = Point2f(0, 0);
-    for (cv::Point2f point : points) {
-        average = addPoints(average, point);
+    //for (cv::Point2f point : points) {
+    #pragma omp parallel for
+    for (int i =0;i< points.size(); i++) {
+        average = addPoints(average, points[i]);
     }
     average = dividePoint(average, points.size());
-//    float currentDisplacement = Vector::getEuclidianDistance(position, velocity.getOrigin());
-//    float targetDisplacement = Vector::getEuclidianDistance(average, position);
-//    float distance = ruleOfThree(currentDisplacement, targetDisplacement);
-//    cv::Point2f newTarget = multiplyPoint(removePoints(average, position), distance);
-//    velocity = Vector(position, newTarget);
     velocity = Vector(position, average);
     updatePosition();
     return true;
@@ -58,7 +53,6 @@ bool Boid::updatePosition(std::vector<cv::Point2f> points) {
 
 std::ostream& operator<<(std::ostream& os, const Boid& boid) {
     os << boid.to_str();
-    std::cout << boid.to_str();
     return os;
 }
 

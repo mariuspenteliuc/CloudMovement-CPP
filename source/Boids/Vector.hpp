@@ -17,13 +17,10 @@ private:
     cv::Point origin;
     cv::Point displacement;
 
-    /// Computes the average displacement for a set of vectors. This will return the displacement as a `Point` object, containing the average displacement on each axis.
-    /// - Parameter vectors: the set of `Vectors` to be averaged
-    /// - Returns: a `Point` containing the average displacement
     static void initWithOriginAndPosition(cv::Point origin, cv::Point position);
-    static void initWithDisplacementAndPosition(cv::Point displacement, cv::Point position);
     static void initWithOriginAndDisplacement(cv::Point origin, cv::Point displacement);
 public:
+    static Vector initWithDisplacementAndPosition(cv::Point displacement, cv::Point position);
     static cv::Point2f averageVectorDisplacement(std::vector<Vector> vectors);
     Vector();
     static float getEuclidianDistance(cv::Point2f origin, cv::Point2f destination);

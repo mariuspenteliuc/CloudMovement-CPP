@@ -19,10 +19,6 @@ using namespace cv;
 OpticalFlowService::OpticalFlowService() {
 }
 
-string OpticalFlowService::getOpenCVVersion() {
-    return CV_VERSION;
-}
-
 /// Compute Farneback Optical Flow on the images available at the specified directory.
 /// @param fileType The type of images to be loaded. Can be `jpg`, `png`, and so on.
 /// @param inputPath The path to the folder containing the images.
@@ -31,34 +27,34 @@ string OpticalFlowService::getOpenCVVersion() {
 /// @param saveFlows `true` if flows should be saved to disk, `false` otherwise.
 /// @param numberOfThreads Number of threads. Default is `1` (secvential). 
 int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath, string fileType = "jpg", bool saveOverlays = false, bool saveFlows = true, bool previewOverlays = false, int numberOfThreads = 1) {
-    if (saveFlows) {
-        std::__fs::filesystem::create_directories(outputPath + "/flows/");
-    }
-    if (saveOverlays) {
-        std::__fs::filesystem::create_directories(outputPath + "/overlays/");
-    }
-    OpticalFlowService::fileType = fileType;
+    vector<cv::String> fileNames;
+    size_t k;
     cv::String path(inputPath + "/*." + fileType);
     cv::glob(path,fileNames,false);
-    cv::Mat im1 = cv::imread(fileNames[0]);
-
+    cv::Mat im1 = FileHelper::readFile(fileNames[0]);
 
     omp_set_num_threads(numberOfThreads); // set number of threads in "parallel" blocks
-    #pragma omp parallel for
-    for (size_t k=1; k<fileNames.size(); ++k) {
-        cv::Mat im2 = cv::imread(fileNames[k]);
+    #pragma omp parallel for shared(fileNames) private(k) schedule(dynamic, 3)
+    for (k=1; k<fileNames.size(); ++k) {
+        cv::Mat im2 = FileHelper::readFile(fileNames[k]);
         if (im1.empty() || im2.empty()) continue; //only proceed if sucsessful
 
         Mat flow = getOpticalFlowFarneback(im1, im2);
+
         if (saveFlows) {
-            saveFlowToDisk(outputPath + "/flows/flow_" + to_string(k) + ".npy", flow);
+            #pragma omp critical
+            {
+                FileHelper::writeFile(outputPath + "/flows/flow_" + string(5 - to_string(k).length(), '0') + to_string(k) + ".npy", flow);
+            }
         }
         if (saveOverlays || previewOverlays) {
-            Mat grayImage = cvtColorBGR2GRAY(im2);
+            Mat grayImage;// = FileHelper::convertToGray(im2);
+            cv::cvtColor(im2, grayImage, cv::COLOR_BGR2GRAY);
             Mat overlayedImage = overlayFlowLines(flow, grayImage);
 
             if (saveOverlays) {
-                saveImageToDisk(outputPath + "/overlays/image_" + to_string(k) + ".jpg", overlayedImage);
+                #pragma omp critical
+                FileHelper::writeFile(outputPath + "/overlays/image_" + string(5 - to_string(k).length(), '0') + to_string(k) + ".jpg", overlayedImage);
             }
             if (previewOverlays) {
                 namedWindow("OpticalFlow", WINDOW_AUTOSIZE);
@@ -71,20 +67,57 @@ int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath
     return 0;
 }
 
-void OpticalFlowService::saveFlowToDisk(string fileName, cv::Mat flow) {
-    writeOpticalFlow(fileName, flow);
+/**
+ * Averages multiple flows found in a directory
+ *
+ * @param inputPath the path to the directory inside of which the flows are found.
+ * @return a flow computed as the average.
+ */
+Mat OpticalFlowService::averageFlows(string inputPath) {
+    String path(inputPath + "/*." + "npy");
+    vector<string> fileNames;
+    glob(path, fileNames, false);
+    long numberOfFlows = fileNames.size();
+    Mat flowAverage = FileHelper::readFile(fileNames[0]);
+    int cols = flowAverage.cols;
+    int rows = flowAverage.rows;
+    int counts[1080][1920]{};
+    int row = 0;
+    int col = 0;
+    long index;
+    
+    #pragma omp parallel for shared(fileNames) private(index,row,col)
+    for (index = 1; index < numberOfFlows; ++index) {
+        Mat flow = FileHelper::readFile(fileNames[index]);
+        for(row = 0; row < rows; ++row) {
+            for(col = 0; col < cols; ++col) {
+                Point2f& fxy = flow.at<Point2f>(row, col);
+                if (fxy.x > 0.001 || fxy.y > 0.001) {
+                    counts[row][col]++;
+                    flowAverage.at<Point2f>(row, col) = addPoints(flowAverage.at<Point2f>(row, col), fxy);
+                }
+            }
+        }
+    }
+
+    #pragma omp parallel for private(row,col)
+    for(row = 0; row < rows; ++row) {
+        for(col = 0; col < cols; ++col) {
+            Point2f& fxy = flowAverage.at<Point2f>(row, col);
+            fxy.x = fxy.x / (counts[row][col] + 1);
+            fxy.y = fxy.y / (counts[row][col] + 1);
+        }
+    }
+    return flowAverage;
 }
 
-void OpticalFlowService::saveImageToDisk(string fileName, cv::Mat image) {
-    imwrite(fileName, image);
-}
-
-cv::Mat OpticalFlowService::cvtColorBGR2GRAY(cv::Mat bgrMat) {
-    cv::Mat grayMat;
-    cv::cvtColor(bgrMat, grayMat, cv::COLOR_BGR2GRAY);
-    return grayMat;
-}
-
+/**
+ * Computes and returns the Optical Flow Farneback variant.
+ *
+ * @param firstImage the image cronologically first.
+ * @param secondImage the image cronologically second.
+ * @return a flow containg data that represent dispalcement of pixels in the secondImage.
+ */
 cv::Mat OpticalFlowService::getOpticalFlowFarneback(cv::Mat firstImage, cv::Mat secondImage) {
     cv::Mat firstGrayMat, secondGrayMat;
     cv::cvtColor(firstImage, firstGrayMat, cv::COLOR_BGR2GRAY);
@@ -94,6 +127,13 @@ cv::Mat OpticalFlowService::getOpticalFlowFarneback(cv::Mat firstImage, cv::Mat 
     return flow;
 }
 
+/**
+ * Overlays a grid of lines to visualize motion vectors generated from dispalcement data.
+ *
+ * @param flow the motion data to be overlayed.
+ * @param image the image onto the flow grid should be overlayed.
+ * @return the image with flow lines overlayed on top.
+ */
 cv::Mat OpticalFlowService::overlayFlowLines(cv::Mat flow, cv::Mat image) {
     cv::Mat imageWithFlowOverlay;
     cv::cvtColor(image, imageWithFlowOverlay, cv::COLOR_GRAY2BGR);
@@ -101,6 +141,15 @@ cv::Mat OpticalFlowService::overlayFlowLines(cv::Mat flow, cv::Mat image) {
     return imageWithFlowOverlay;
 }
 
+/**
+ * Draws the Optical Flow map by adding a dot grid overlay and lines representing the motion direction and length.
+ *
+ * @param flow the flow from which data is to be drawn.
+ * @param cflowmap the image onto which data is to be drawn.
+ * @param step the grid step size.
+ * @param double? not sure why I have this...
+ * @param color the color data should have.
+ */
 void OpticalFlowService::drawOpticalFlowMap(const cv::Mat& flow, cv::Mat& cflowmap, int step, double, const cv::Scalar& color) {
     int x;
     // auto start = high_resolution_clock::now(); 

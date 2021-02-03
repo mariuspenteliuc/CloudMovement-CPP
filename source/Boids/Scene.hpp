@@ -10,6 +10,9 @@
 
 #include <stdio.h>
 #include "Boid.hpp"
+#include "OpticalFlow/OpticalFlowService.hpp"
+#include "Helpers/MathHelper.hpp"
+#include <filesystem>
 
 class Scene {
 private:
@@ -20,6 +23,9 @@ private:
     cv::Mat windMap;
     cv::Mat scene;
     int framesShown;
+    bool saveSimulation;
+    int framesSaved = 0;
+    bool previewSimulation = false;
 
     bool addBoid(Boid boid);
     cv::Point2f getCenterOfMass();
@@ -31,6 +37,7 @@ private:
     cv::Point2f ruleOfWind(Boid boid);
     void clearScene();
     void drawScene();
+    bool updateSimulation();
 public:
     Scene(int sizeX, int sizeY);
     std::vector<Vector> getWindVectors(cv::Point2f location);
@@ -42,7 +49,7 @@ public:
     int getBoidsCount();
     std::vector<Boid> getNeighbors(Boid boid, float range);
     std::vector<Boid> getAllBoids();
-    bool update();
+    bool runSimulation(int steps, bool preview = false);
     bool startSimulation();
 };
 

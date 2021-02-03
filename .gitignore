@@ -60,3 +60,9 @@ DerivedData/
 
 ## Gcc Patch
 /*.gcno
+
+##Vs Code settings
+*.vscode/
+
+##CMake paths
+CMakeLists.txt
