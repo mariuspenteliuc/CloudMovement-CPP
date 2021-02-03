@@ -67,6 +67,13 @@ Boid Boid::initWithinConstraint(int maxX, int maxY) {
     return boid;
 }
 
+Boid Boid::initWithinConstraint(int x, int y, int margin) {
+    Boid boid = Boid();
+    boid.position = cv::Point2f( x + (rand() %margin)/100.0f - 1/2, y + (rand() % margin)/100.0f - 1/2);
+    boid.velocity = Vector(boid.getPosition(), boid.getPosition());
+    return boid;
+}
+
 float Boid::getDistanceBetween(Boid firstBoid, Boid secondBoid) {
     return sqrt(pow((secondBoid.position.x - firstBoid.position.x), 2.0f) + pow((secondBoid.position.y - firstBoid.position.y), 2.0f));
 }

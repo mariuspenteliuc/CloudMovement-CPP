@@ -21,11 +21,11 @@ class OpticalFlowService {
 private:
     static void drawOpticalFlowMap(const cv::Mat& flow, cv::Mat& cflowmap, int step, double, const cv::Scalar& color);
     static cv::Mat getOpticalFlowFarneback(cv::Mat firstImage, cv::Mat secondImage);
-    static cv::Mat overlayFlowLines(cv::Mat flow, cv::Mat image);
 public:
+    static cv::Mat overlayFlowLines(cv::Mat flow, cv::Mat image);
     OpticalFlowService();
     static int computeFlowForImages(string inputPath, string outputPath, string fileType, bool saveOverlays, bool saveFlows, bool previewOverlays, int numberOfThreads);
-    static cv::Mat averageFlows(string inputPath);
+    static cv::Mat averageFlows(string inputPath, size_t index = 0, size_t numberOfFlows = 0);
 };
 
 #endif /* OpticalFlowService_hpp */

@@ -17,6 +17,7 @@
 class Scene {
 private:
     std::vector<Boid> boids;
+    string outputFolder;
     int sizeX, sizeY;
     static const float FIXED_RANGE;
     static const float COLLISION_RANGE;
@@ -38,19 +39,24 @@ private:
     void clearScene();
     void drawScene();
     bool updateSimulation();
+    Mat updateWindPosition(Mat windMap);
+    Mat averageWindMap(Mat windMap, int radius = 5);
 public:
     Scene(int sizeX, int sizeY);
+    bool computeDifferenceOfWindMaps(Mat& first, Mat& second, Mat& result);
     std::vector<Vector> getWindVectors(cv::Point2f location);
     int getSizeX();
     int getSizeY();
     cv::Mat getWindMap();
     bool updateWindMap(cv::Mat newWindMap);
+    bool updateWindMapUsingBoids(int neighborhoodRadius, string outputFolder);
     bool addRandomBoid();
+    bool addBoid(int x, int y, int margin);
     int getBoidsCount();
     std::vector<Boid> getNeighbors(Boid boid, float range);
     std::vector<Boid> getAllBoids();
     bool runSimulation(int steps, bool preview = false);
-    bool startSimulation();
+    bool startSimulation(string outputFolder, int startIndex);
 };
 
 #endif /* Scene_hpp */

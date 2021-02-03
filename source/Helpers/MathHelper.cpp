@@ -50,3 +50,13 @@ Point2f averagePoints(std::vector<cv::Point2f> points) {
     }
     return dividePoint(average, points.size());
 }
+
+Point2f averagePointsUsingWeights(Point2f p20, Point2f p80) {
+    cv::Point2f average;
+    float x = p20.x * 0.2 + p80.x * 0.8;
+    float y = p20.y * 0.2 + p80.y * 0.8;
+    average.x = x;
+    average.y = y;
+    
+    return average;
+}
