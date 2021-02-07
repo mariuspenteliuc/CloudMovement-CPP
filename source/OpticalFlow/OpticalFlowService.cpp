@@ -80,6 +80,7 @@ int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath
 Mat OpticalFlowService::averageFlows(string inputPath, size_t index, size_t numberOfFlows) {
     String path(inputPath + "/*." + "npy");
     vector<string> fileNames;
+    size_t startIndex = index;
     glob(path, fileNames, false);
     if (numberOfFlows == 0) numberOfFlows = fileNames.size();
     Mat flowAverage = FileHelper::readFile(fileNames[0]);
@@ -90,7 +91,7 @@ Mat OpticalFlowService::averageFlows(string inputPath, size_t index, size_t numb
     int col = 0;
     
     #pragma omp parallel for shared(fileNames) private(index,row,col)
-    for (index = 1; index < numberOfFlows; ++index) {
+    for (index = startIndex; index < numberOfFlows; ++index) {
         Mat flow = FileHelper::readFile(fileNames[index]);
         for(row = 0; row < rows; ++row) {
             for(col = 0; col < cols; ++col) {
@@ -112,6 +113,7 @@ Mat OpticalFlowService::averageFlows(string inputPath, size_t index, size_t numb
         }
     }
     return flowAverage;
+
 }
 
 /**
