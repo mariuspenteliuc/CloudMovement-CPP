@@ -170,8 +170,8 @@ bool Scene::updateWindMap(cv::Mat newWindMap) {
 /// Updates the position of wind vectors by their velocity and direction of movement.
 /// @param windMap the collection of vectors to be updated.
 Mat Scene::updateWindPosition(Mat windMap) {
-    Mat updatedWindMap;
-    windMap.copyTo(updatedWindMap);
+    Mat updatedWindMap(windMap.rows, windMap.cols, windMap.type(), Scalar(0));
+//    windMap.copyTo(updatedWindMap);
     for(int row = 0; row < windMap.rows; ++row) {
         for(int col = 0; col < windMap.cols; ++col) {
             Point2f& fxy = windMap.at<Point2f>(row, col);
@@ -184,6 +184,9 @@ Mat Scene::updateWindPosition(Mat windMap) {
                 //            cv::Point2f newPoint = cv::Point2f(cvRound(col+fxy.x), cvRound(row+fxy.y));
                 cv::Point2f newPoint = cv::Point2f(ceil(col+fxy.x), ceil(row+fxy.y));
                 if (newPoint.x >= 0 && newPoint.y >=0) {
+                    if (updatedWindMap.at<Point2f>(newPoint).x != 0 || updatedWindMap.at<Point2f>(newPoint).y != 0) {
+                        cout << updatedWindMap.at<Point2f>(newPoint) << " at " << newPoint << endl;
+                    }
                     updatedWindMap.at<Point2f>(newPoint) = fxy;
                 }
                 //            cout << "changing " << updatedwindmap.at<Point2f>(newPoint) << " into " << fxy << endl;
@@ -246,6 +249,104 @@ bool Scene::updateWindMapUsingBoids(int neighbordhoodRadius, string outputFolder
     updateWindPosition(getWindMap()).copyTo(this->windMap);
     averageWindMap(getWindMap(), neighbordhoodRadius);
     return true;
+}
+
+bool Scene::updateUsingWeightedAverage() {
+    Mat windMap = getWindMap();
+    double min = 0, max = 0;
+    cv::minMaxIdx(windMap, &min, &max);
+    int radius = ceil(std::max(abs(min), abs(max)));
+    if (radius % 2 == 0) ++radius;
+    Mat newWindMap;
+    windMap.copyTo(newWindMap);
+//    Mat newWindMap(windMap.rows, windMap.cols, windMap.type());
+    for(int row = 0; row < newWindMap.rows; ++row) {
+        for(int col = 0; col < newWindMap.cols; ++col) {
+            Point2f& currentPoint = windMap.at<Point2f>(row, col);
+//            ignore edges
+            int colStartIndex = col - radius;
+            if (colStartIndex < 0) colStartIndex = 0;
+            int rowStartIndex = row - radius;
+            if (rowStartIndex < 0) rowStartIndex = 0;
+            int colEndIndex = col + radius;
+            if (colEndIndex > 1920-1) colEndIndex = 1920-1;
+            int rowEndIndex = row + radius;
+            if (rowEndIndex > 1080-1) rowEndIndex = 1080-1;
+//            find vectors targeting current position
+            vector<Point2f> selectedVectors;
+            float displacementSum = 0;
+            vector<Point2f> halfSelectedVectors;
+            float halfDisplacementSum = 0;
+            for (int i = rowStartIndex; i < rowEndIndex + 1; ++i) {
+                for (int j = colStartIndex; j < colEndIndex + 1; ++j) {
+                    Point2f& fxy = windMap.at<Point2f>(i,j);
+//                    Point2f point = addPoints(Point2f(i,j), Point2f(ceil(fxy.x),ceil(fxy.y)));
+//                    if (addPoints(Point2f(i,j), Point2f(ceil(fxy.x),ceil(fxy.y))) == Point2f(row, col)) {
+//                    y before x because of coordinate positioning system
+                    if (addPoints(Point2f(i,j), Point2f(cvRound(fxy.y),cvRound(fxy.x))) == Point2f(row, col)) {
+                        selectedVectors.push_back(fxy);
+                        displacementSum += Vector::getEuclidianDistance(Point2f(0,0), fxy);
+                    }
+//                    half selected vectors
+                    Point2f difference = removePoints(addPoints(Point2f(i, j), Point2f(cvRound(fxy.y), cvRound(fxy.x))), Point2f(row, col));
+                    if ((difference.x == 1 || difference.x == -1) && (difference.y == 1 || difference.y == -1)) {
+                        halfSelectedVectors.push_back(fxy);
+                        halfDisplacementSum += Vector::getEuclidianDistance(Point2f(0,0), fxy);
+                    }
+                }
+            }
+            Point2f average(0,0);
+//            average first ring of neighbors if no vectors are selected yet
+            if (selectedVectors.size() == 0) {
+                colStartIndex = col - 1;
+                if (colStartIndex < 0) colStartIndex = 0;
+                rowStartIndex = row - 1;
+                if (rowStartIndex < 0) rowStartIndex = 0;
+                colEndIndex = col + 1;
+                if (colEndIndex > 1920-1) colEndIndex = 1920-1;
+                rowEndIndex = row + 1;
+                if (rowEndIndex > 1080-1) rowEndIndex = 1080-1;
+                for (int i = rowStartIndex; i < rowEndIndex + 1; ++i) {
+                    for (int j = colStartIndex; j < colEndIndex + 1; ++j) {
+                        Point2f& fxy = windMap.at<Point2f>(i,j);
+                        selectedVectors.push_back(fxy);
+                        displacementSum += Vector::getEuclidianDistance(Point2f(0,0), fxy);
+                    }
+                }
+            }
+//            average selected vectors using percentage weights
+            if (!selectedVectors.empty()) {
+                for (Point2f vector : selectedVectors) {
+                    float percentage = Vector::getEuclidianDistance(Point2f(0,0), vector) / displacementSum;
+                    average.x += vector.x * percentage;
+                    average.y += vector.y * percentage;
+                }
+            } else {
+                for (Point2f vector : halfSelectedVectors) {
+                    float percentage = Vector::getEuclidianDistance(Point2f(0,0), vector) / halfDisplacementSum;
+                    average.x += vector.x * percentage;
+                    average.y += vector.y * percentage;
+                }
+            }
+                newWindMap.at<Point2f>(row, col) = average;
+//            if (selectedVectors.size() > 0) {
+////                cout << row << ", " << col << endl;
+////                cout << selectedVectors << endl;
+//                for (int i = rowStartIndex; i < rowEndIndex + 1; ++i) {
+//                    for (int j = colStartIndex; j < colEndIndex + 1; ++j) {
+//                        for (Point2f point : selectedVectors) {
+//                            if (point == windMap.at<Point2f>(i, j)) {
+////                                cout << i << ", " << j << endl;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            cout << selectedVectors;
+        }
+    }
+    newWindMap.copyTo(this->windMap);
+    return false;
 }
 
 /**
