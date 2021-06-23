@@ -395,10 +395,12 @@ std::vector<Vector> Scene::getWindVectors(cv::Point2f location) {
  * @return true after completion (beta)...
  */
 bool Scene::updateSimulation() {
-    for (vector<Boid>::iterator boid =boids.begin(); boid!= boids.end(); ) {
+    for (vector<Boid>::iterator boid = boids.begin(); boid!= boids.end(); ) {
         std::vector<Point2f> points;
+//        TODO: check rule of wind function
         points.push_back(ruleOfWind(*boid));
         cv::Point2f originalPosition = boid->getPosition();
+//        TODO: check update velocity function
         boid->updateVelocity(points);
         cv::Point2f newPosition = boid->getPosition();
         if (originalPosition == newPosition) {
@@ -434,7 +436,7 @@ void Scene::clearScene() {
  *
  * @return true after completion (beta)...
  */
-bool Scene::startSimulation(string outputFolder, int startIndex = 0) {
+bool Scene::startSimulation(string outputFolder, int startIndex) {
     this->framesSaved = startIndex;
     this->outputFolder = outputFolder;
     saveSimulation = true;
@@ -450,10 +452,9 @@ bool Scene::startSimulation(string outputFolder, int startIndex = 0) {
 void Scene::drawScene() {
     clearScene();
     for (Boid boid : boids) {
-        const cv::Point point = cv::Point(cvRound(boid.getPosition().x), cvRound(boid.getPosition().y));
+        const cv::Point point = cv::Point(boid.getPosition().x, boid.getPosition().y);  /// ← if getting unexpected previews, round the positions using cvRound()
         circle(scene, point, .5, cv::Scalar(255, 255, 255, 0), cv::FILLED);
     }
-//    FileHelper::writeFile("/Users/mariuspenteliuc/Assets/PhD/debug/debug_out/boids/boids_" + std::string(5 - to_string(framesSaved).length(), '0') + std::to_string(framesSaved) + ".jpg", scene);
     FileHelper::writeFile(outputFolder + "/simulated_clouds/boids_" + std::string(5 - to_string(framesSaved).length(), '0') + std::to_string(framesSaved) + ".jpg", scene);
     framesSaved++;
     imshow("OpticalFlow", scene);
