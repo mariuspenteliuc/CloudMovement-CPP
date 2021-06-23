@@ -12,10 +12,29 @@ Point2f addPoints(Point2f v1, Point2f v2) {
     float y = v1.y + v2.y;
     return Point2f(x, y);
 }
+static void remapNumbers(float &number) {
+    if (number < 0.5 && number > -0.5) {
+        number = 0;
+    } else if (number >= 0.5) {
+        number = 1;
+    } else {
+        number = -1;
+    }
+}
+
+Point2f transformToSimpleDirection(Point2f point) {
+    remapNumbers(point.x);
+    remapNumbers(point.y);
+    return point;
+}
 Point2f addPointsByPercentage(Point2f v1, float p1, Point2f v2, float p2) {
     float x = p1 * v1.x + p2 * v2.x;
     float y = p1 * v1.y + p2 * v2.y;
     return Point2f(x, y);
+}
+Point2f computeAPE(Point2f real, Point2f forecast) {
+    return Point2f((abs(real.x - forecast.x) / real.x)*100, (abs(real.y - forecast.y) / real.y)*100);
+//    return (abs(Vector::getEuclidianDistance(Point2f(0,0), real) - Vector::getEuclidianDistance(Point2f(0,0), forecast)) / Vector::getEuclidianDistance(Point2f(0,0), real)) * 100;
 }
 Point2f removePoints(Point2f v1, Point2f v2) {
     float x = v1.x - v2.x;
@@ -49,6 +68,17 @@ Point2f averagePoints(std::vector<cv::Point2f> points) {
         average = addPoints(average, point);
     }
     return dividePoint(average, points.size());
+}
+
+Point2f averagePointsProportionally(Point2f a, Point2f b) {
+    cv::Point2f average;
+    float lenght_a = Vector::getEuclidianDistance(Point2f(0,0), a);
+    float lenght_b = Vector::getEuclidianDistance(Point2f(0,0), b);
+    float percent_a = ruleOfThree(lenght_a, lenght_a+lenght_b);
+    float percent_b = 1.0 - percent_a;
+    average.x = a.x * percent_a + b.x * percent_b;
+    average.y = a.y * percent_a + b.y * percent_b;
+    return average;
 }
 
 Point2f averagePointsUsingWeights(Point2f p20, Point2f p80) {

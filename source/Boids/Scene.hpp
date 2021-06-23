@@ -46,8 +46,8 @@ public:
     bool updateUsingWeightedAverage();
     bool computeDifferenceOfWindMaps(Mat& first, Mat& second, Mat& result);
     std::vector<Vector> getWindVectors(cv::Point2f location);
-    int getSizeX();
-    int getSizeY();
+    int getWidth();
+    int getHeight();
     cv::Mat getWindMap();
     bool updateWindMap(cv::Mat newWindMap);
     bool updateWindMapUsingBoids(int neighborhoodRadius, string outputFolder);
@@ -57,7 +57,7 @@ public:
     std::vector<Boid> getNeighbors(Boid boid, float range);
     std::vector<Boid> getAllBoids();
     bool runSimulation(int steps, bool preview = false);
-    bool startSimulation(string outputFolder, int startIndex);
+    bool startSimulation(string outputFolder, int startIndex = 0);
 };
 
 #endif /* Scene_hpp */

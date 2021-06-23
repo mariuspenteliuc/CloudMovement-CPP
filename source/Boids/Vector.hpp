@@ -27,6 +27,7 @@ public:
     Vector(cv::Point2f origin, cv::Point2f position);
     cv::Point2f getOrigin();
     cv::Point2f getDisplacement();
+    static float getAngleBetween(cv::Point2f first, cv::Point2f second);
 };
 
 #endif /* Vector_hpp */

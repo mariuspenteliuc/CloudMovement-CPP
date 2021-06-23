@@ -69,26 +69,32 @@ Mat OpticalFlowService::averageFlows(string inputPath, size_t index, size_t numb
     Mat flowAverage = FileHelper::readFile(fileNames[0]);
     int cols = flowAverage.cols;
     int rows = flowAverage.rows;
-    int counts[1080][1920]{};
+    int counts[rows][cols];
+    memset( counts, 0, rows*cols*sizeof(int) );
+//    int counts[615][845]{};
     for (; index < numberOfFlows; ++index) {
         Mat flow = FileHelper::readFile(fileNames[index]);
         for(int row = 0; row < rows; ++row) {
             for(int col = 0; col < cols; ++col) {
                 Point2f& fxy = flow.at<Point2f>(row, col);
-                if (fxy.x > 0.001 || fxy.y > 0.001) {
+                if (fxy.x != 0 || fxy.y != 0) {
                     counts[row][col]++;
-                    flowAverage.at<Point2f>(row, col) = addPoints(flowAverage.at<Point2f>(row, col), fxy);
+//                    flowAverage.at<Point2f>(row, col) = dividePoint(addPoints(flowAverage.at<Point2f>(row, col), fxy), 2); // b
+//                    flowAverage.at<Point2f>(row, col) = fxy; // c
+//                    flowAverage.at<Point2f>(row, col) = addPoints(flowAverage.at<Point2f>(row, col), fxy); // a
+//                    flowAverage.at<Point2f>(row, col) = addPoints(flowAverage.at<Point2f>(row, col), fxy); // d
+                    flowAverage.at<Point2f>(row, col) = averagePointsProportionally(flowAverage.at<Point2f>(row, col), fxy); // e ← best one
                 }
             }
         }
     }
-    for(int row = 0; row < rows; ++row) {
-        for(int col = 0; col < cols; ++col) {
-            Point2f& fxy = flowAverage.at<Point2f>(row, col);
-            fxy.x = fxy.x / (counts[row][col] + 1);
-            fxy.y = fxy.y / (counts[row][col] + 1);
-        }
-    }
+//    for(int row = 0; row < rows; ++row) {
+//        for(int col = 0; col < cols; ++col) {
+//            Point2f& fxy = flowAverage.at<Point2f>(row, col);
+//            fxy.x = fxy.x / (counts[row][col]);
+//            fxy.y = fxy.y / (counts[row][col]);
+//        }
+//    }
     return flowAverage;
 }
 
@@ -104,7 +110,7 @@ cv::Mat OpticalFlowService::getOpticalFlowFarneback(cv::Mat firstImage, cv::Mat 
     cv::cvtColor(firstImage, firstGrayMat, cv::COLOR_BGR2GRAY);
     cv::cvtColor(secondImage, secondGrayMat, cv::COLOR_BGR2GRAY);
     cv::Mat flow;
-    cv::calcOpticalFlowFarneback(firstGrayMat, secondGrayMat, flow, 0.5, 7, 50, 3, 7, 1.5, 0); /// nice defaults: 0.5, 3, 15, 3, 5, 1.2, 0
+    cv::calcOpticalFlowFarneback(firstGrayMat, secondGrayMat, flow, 0.5, 10, 15, 1, 1, 1, 0); /// nice defaults: 0.5, 3, 15, 3, 5, 1.2, 0
     return flow;
 }
 
@@ -120,6 +126,20 @@ cv::Mat OpticalFlowService::overlayFlowLines(cv::Mat flow, cv::Mat image) {
     cv::cvtColor(image, imageWithFlowOverlay, cv::COLOR_GRAY2BGR);
     drawOpticalFlowMap(flow, imageWithFlowOverlay, 10, 1.5, cv::Scalar(0, 255, 0));
     return imageWithFlowOverlay;
+}
+
+/**
+ * Overlays a grid of lines to visualize motion vectors generated from dispalcement data.
+ *
+ * @param flow the motion data to be overlayed.
+ * @param image the image onto the flow grid should be overlayed.
+ * @return the image with flow lines overlayed on top.
+ */
+cv::Mat OpticalFlowService::overlayFlowLines(cv::Mat flow) {
+    Mat blank = Mat::zeros(Size(flow.cols, flow.rows), CV_8UC1);
+    cv::cvtColor(blank, blank, cv::COLOR_GRAY2BGR);
+    drawOpticalFlowMap(flow, blank, 10, 1.5, cv::Scalar(0, 255, 0));
+    return blank;
 }
 
 /**

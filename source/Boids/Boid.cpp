@@ -34,7 +34,11 @@ bool Boid::updateVelocity(std::vector<cv::Point2f> points) {
     }
     average = dividePoint(average, points.size());
     velocity = Vector(position, average);
-    updatePosition();
+//    if (abs(velocity.getDisplacement().x) > 1 && abs(velocity.getDisplacement().y) > 1) {
+        updatePosition();
+//    } else {
+//
+//    }
     return true;
 }
 

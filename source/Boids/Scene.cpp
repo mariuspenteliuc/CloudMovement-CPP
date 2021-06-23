@@ -68,11 +68,11 @@ int Scene::getBoidsCount() {
     return static_cast<int>(boids.size());
 }
 
-int Scene::getSizeX() {
+int Scene::getWidth() {
     return sizeX;
 }
 
-int Scene::getSizeY() {
+int Scene::getHeight() {
     return sizeY;
 }
 
@@ -175,18 +175,18 @@ Mat Scene::updateWindPosition(Mat windMap) {
     for(int row = 0; row < windMap.rows; ++row) {
         for(int col = 0; col < windMap.cols; ++col) {
             Point2f& fxy = windMap.at<Point2f>(row, col);
-            if (isnan(fxy.x) || isnan(fxy.y)) {
-                cout << "We have NaN at (" << row << ", " << col << ")" << endl;
-                if (isnan(fxy.x)) fxy.x = fxy.y;
-                else fxy.y = fxy.x;
-            }
+//            if (isnan(fxy.x) || isnan(fxy.y)) {
+////                cout << "We have NaN at (" << row << ", " << col << ")" << endl;
+//                if (isnan(fxy.x)) fxy.x = fxy.y;
+//                else fxy.y = fxy.x;
+//            }
             if ((col + fxy.x < 1918) && (row + fxy.y < 1078)) {
                 //            cv::Point2f newPoint = cv::Point2f(cvRound(col+fxy.x), cvRound(row+fxy.y));
                 cv::Point2f newPoint = cv::Point2f(ceil(col+fxy.x), ceil(row+fxy.y));
                 if (newPoint.x >= 0 && newPoint.y >=0) {
-                    if (updatedWindMap.at<Point2f>(newPoint).x != 0 || updatedWindMap.at<Point2f>(newPoint).y != 0) {
-                        cout << updatedWindMap.at<Point2f>(newPoint) << " at " << newPoint << endl;
-                    }
+//                    if (updatedWindMap.at<Point2f>(newPoint).x != 0 || updatedWindMap.at<Point2f>(newPoint).y != 0) {
+////                        cout << updatedWindMap.at<Point2f>(newPoint) << " at " << newPoint << endl;
+//                    }
                     updatedWindMap.at<Point2f>(newPoint) = fxy;
                 }
                 //            cout << "changing " << updatedwindmap.at<Point2f>(newPoint) << " into " << fxy << endl;
@@ -256,13 +256,15 @@ bool Scene::updateUsingWeightedAverage() {
     double min = 0, max = 0;
     cv::minMaxIdx(windMap, &min, &max);
     int radius = ceil(std::max(abs(min), abs(max)));
+    
+    radius /= 2; // reduce computational cost. most vectors are not so strong and smaller ranges should suffice
+    
     if (radius % 2 == 0) ++radius;
     Mat newWindMap;
     windMap.copyTo(newWindMap);
 //    Mat newWindMap(windMap.rows, windMap.cols, windMap.type());
     for(int row = 0; row < newWindMap.rows; ++row) {
         for(int col = 0; col < newWindMap.cols; ++col) {
-            Point2f& currentPoint = windMap.at<Point2f>(row, col);
 //            ignore edges
             int colStartIndex = col - radius;
             if (colStartIndex < 0) colStartIndex = 0;
@@ -270,8 +272,10 @@ bool Scene::updateUsingWeightedAverage() {
             if (rowStartIndex < 0) rowStartIndex = 0;
             int colEndIndex = col + radius;
             if (colEndIndex > 1920-1) colEndIndex = 1920-1;
+//            if (colEndIndex > 845-1) colEndIndex = 845-1;
             int rowEndIndex = row + radius;
             if (rowEndIndex > 1080-1) rowEndIndex = 1080-1;
+//            if (rowEndIndex > 615-1) rowEndIndex = 615-1;
 //            find vectors targeting current position
             vector<Point2f> selectedVectors;
             float displacementSum = 0;
@@ -304,8 +308,10 @@ bool Scene::updateUsingWeightedAverage() {
                 if (rowStartIndex < 0) rowStartIndex = 0;
                 colEndIndex = col + 1;
                 if (colEndIndex > 1920-1) colEndIndex = 1920-1;
+//                if (colEndIndex > 845-1) colEndIndex = 845-1;
                 rowEndIndex = row + 1;
                 if (rowEndIndex > 1080-1) rowEndIndex = 1080-1;
+//                if (rowEndIndex > 615-1) rowEndIndex = 615-1;
                 for (int i = rowStartIndex; i < rowEndIndex + 1; ++i) {
                     for (int j = colStartIndex; j < colEndIndex + 1; ++j) {
                         Point2f& fxy = windMap.at<Point2f>(i,j);
@@ -370,9 +376,11 @@ std::vector<Vector> Scene::getWindVectors(cv::Point2f location) {
             float yAxis = location.y + j;
             float xAxis = location.x + i;
             if (yAxis < 0) yAxis = 0;
-            else if (yAxis > 1079) yAxis = 1919;
+            else if (yAxis > 1079) yAxis = 1079;
+//            else if (yAxis > 614) yAxis = 844;
             if (xAxis < 0) xAxis = 0;
-            else if (xAxis > 1919) xAxis = 1079;
+            else if (xAxis > 1919) xAxis = 1919;
+//            else if (xAxis > 844) xAxis = 614;
             Point2f origin = windMap.at<cv::Point2f>(yAxis, xAxis);
             Vector vector = Vector::initWithDisplacementAndPosition(origin, location);
             closeWindVectors.push_back(vector);
@@ -387,12 +395,29 @@ std::vector<Vector> Scene::getWindVectors(cv::Point2f location) {
  * @return true after completion (beta)...
  */
 bool Scene::updateSimulation() {
-    for (Boid& boid : boids) {
+    for (vector<Boid>::iterator boid =boids.begin(); boid!= boids.end(); ) {
         std::vector<Point2f> points;
-        points.push_back(ruleOfWind(boid));
-//        points.push_back(rule2(boid));
-        boid.updateVelocity(points);
+        points.push_back(ruleOfWind(*boid));
+        cv::Point2f originalPosition = boid->getPosition();
+        boid->updateVelocity(points);
+        cv::Point2f newPosition = boid->getPosition();
+        if (originalPosition == newPosition) {
+            boid = boids.erase(boid);
+        } else {
+            ++boid;
+        }
     }
+//    for (Boid& boid : boids) {
+//        std::vector<Point2f> points;
+//        points.push_back(ruleOfWind(boid));
+////        points.push_back(rule2(boid));
+//        cv::Point2f originalPosition = boid.getPosition();
+//        boid.updateVelocity(points);
+//        cv::Point2f newPosition = boid.getPosition();
+//        if (originalPosition == newPosition) {
+//
+//        }
+//    }
     drawScene();
     return true;
 }
@@ -409,7 +434,7 @@ void Scene::clearScene() {
  *
  * @return true after completion (beta)...
  */
-bool Scene::startSimulation(string outputFolder, int startIndex) {
+bool Scene::startSimulation(string outputFolder, int startIndex = 0) {
     this->framesSaved = startIndex;
     this->outputFolder = outputFolder;
     saveSimulation = true;
@@ -463,7 +488,9 @@ bool Scene::computeDifferenceOfWindMaps(Mat& first, Mat& second, Mat& result) {
  */
 bool Scene::runSimulation(int steps, bool preview) {
     this->previewSimulation = preview;
+//    cout << "\tRun ";
     for (int i = 0; i < steps; ++i) {
+//        cout << "\tRun " << i;
         updateSimulation();
     }
     return true;
