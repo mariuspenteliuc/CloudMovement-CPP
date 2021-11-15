@@ -20,7 +20,7 @@ using namespace std;
 class OpticalFlowService {
 private:
     static void drawOpticalFlowMap(const cv::Mat& flow, cv::Mat& cflowmap, int step, double, const cv::Scalar& color);
-    static cv::Mat getOpticalFlowFarneback(cv::Mat firstImage, cv::Mat secondImage);
+    static cv::Mat getOpticalFlowFarneback(cv::Mat firstImage, cv::Mat secondImage, cv::Mat initialGuess);
 public:
     static cv::Mat overlayFlowLines(cv::Mat flow, cv::Mat image);
     static cv::Mat overlayFlowLines(cv::Mat flow);

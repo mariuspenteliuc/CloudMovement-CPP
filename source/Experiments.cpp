@@ -9,8 +9,11 @@
 
 int runExperiments() {
     
-    string INPUT = "/Users/mariuspenteliuc/Assets/PhD/ExperimentalSets/LinearMovement_1/frames";
-    string OUTPUT = "/Users/mariuspenteliuc/Assets/PhD/ExperimentalSets/LinearMovement_1";
+//    string INPUT = "/Users/mariuspenteliuc/Assets/PhD/ExperimentalSets/OutMovement_1/frames";
+    string ROOT = "/Users/mariuspenteliuc/Assets/PhD/ThesisKeynote";
+    string INPUT = ROOT + "/frames";
+    string OUTPUT = ROOT + "";
+    cout << ">>> Output folder: " << OUTPUT << endl;
     cv::String pathToFlows(OUTPUT + "/flows");
     if (!std::__fs::filesystem::exists(pathToFlows)) {
         cout << "Computing optical flow..." << endl;
@@ -45,7 +48,7 @@ int runExperiments() {
             for (int i = 0; i < scene.getWidth(); i+=5) {
                 for (int j = 0; j < scene.getHeight(); j+=5) {
                     Point2f& fxy = initialMask.at<Point2f>(j, i);
-                    if (abs(fxy.x) > 0.001 || abs(fxy.y) > 0.001) { // a
+                    if (abs(fxy.x) > 1.0 || abs(fxy.y) > 1.0) { // a
 //                    if (fxy.x != 0 || fxy.y != 0) { // b  ← can't use this because OF creates lines of close to zero values
                         scene.addBoid(i, j, 1);
                     }

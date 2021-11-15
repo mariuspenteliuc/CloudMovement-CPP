@@ -7,7 +7,7 @@
 
 #include "Scene.hpp"
 
-const float Scene::FIXED_RANGE = 25;
+const float Scene::FIXED_RANGE = 0;//25; //TODO: did this to avoid slowing down of edge cloud points when averaging wind under a position.
 const float Scene::COLLISION_RANGE = 5;
 
 /**
@@ -395,20 +395,21 @@ std::vector<Vector> Scene::getWindVectors(cv::Point2f location) {
  * @return true after completion (beta)...
  */
 bool Scene::updateSimulation() {
-    for (vector<Boid>::iterator boid = boids.begin(); boid!= boids.end(); ) {
-        std::vector<Point2f> points;
-//        TODO: check rule of wind function
-        points.push_back(ruleOfWind(*boid));
-        cv::Point2f originalPosition = boid->getPosition();
-//        TODO: check update velocity function
-        boid->updateVelocity(points);
-        cv::Point2f newPosition = boid->getPosition();
-        if (originalPosition == newPosition) {
-            boid = boids.erase(boid);
-        } else {
-            ++boid;
+    if (!boids.empty()) {
+        for (vector<Boid>::iterator boid = boids.begin(); boid!= boids.end(); ) {
+            std::vector<Point2f> points;
+    //        TODO: check rule of wind function
+            points.push_back(ruleOfWind(*boid));
+            cv::Point2f originalPosition = boid->getPosition();
+    //        TODO: check update velocity function
+            boid->updateVelocity(points);
+            cv::Point2f newPosition = boid->getPosition();
+            if (originalPosition == newPosition) {
+                boid = boids.erase(boid);
+            } else {
+                ++boid;
+            }
         }
-    }
 //    for (Boid& boid : boids) {
 //        std::vector<Point2f> points;
 //        points.push_back(ruleOfWind(boid));
@@ -420,8 +421,12 @@ bool Scene::updateSimulation() {
 //
 //        }
 //    }
-    drawScene();
-    return true;
+        drawScene();
+        Mat overlayedImage = OpticalFlowService::overlayFlowLines(getWindMap());
+        FileHelper::writeFile(outputFolder + "/future_map/wind_map_" + std::string(5 - to_string(framesSaved).length(), '0') + std::to_string(framesSaved) + ".jpg", overlayedImage);
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -492,7 +497,11 @@ bool Scene::runSimulation(int steps, bool preview) {
 //    cout << "\tRun ";
     for (int i = 0; i < steps; ++i) {
 //        cout << "\tRun " << i;
-        updateSimulation();
+//        updateUsingWeightedAverage();
+        int status = updateSimulation();
+        if (!status) {
+            break;
+        }
     }
     return true;
 }

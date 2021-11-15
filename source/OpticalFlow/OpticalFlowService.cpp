@@ -24,11 +24,14 @@ int OpticalFlowService::computeFlowForImages(string inputPath, string outputPath
     cv::String path(inputPath + "/*." + fileType);
     cv::glob(path,fileNames,false);
     cv::Mat im1 = FileHelper::readFile(fileNames[0]);
+    cv::Mat initialGuess;
     for (size_t k=1; k<fileNames.size(); ++k) {
          cv::Mat im2 = FileHelper::readFile(fileNames[k]);
          if (im1.empty() || im2.empty()) continue; //only proceed if sucsessful
 
-        Mat flow = getOpticalFlowFarneback(im1, im2);
+        Mat flow = getOpticalFlowFarneback(im1, im2, initialGuess);
+//        initialGuess.zeros(<#Size size#>, <#int type#>)
+        flow.copyTo(initialGuess);
         if (saveFlows) {
             FileHelper::writeFile(outputPath + "/flows/flow_" + string(5 - to_string(k).length(), '0') + to_string(k) + ".npy", flow);
         }
@@ -105,12 +108,17 @@ Mat OpticalFlowService::averageFlows(string inputPath, size_t index, size_t numb
  * @param secondImage the image cronologically second.
  * @return a flow containg data that represent dispalcement of pixels in the secondImage.
  */
-cv::Mat OpticalFlowService::getOpticalFlowFarneback(cv::Mat firstImage, cv::Mat secondImage) {
+cv::Mat OpticalFlowService::getOpticalFlowFarneback(cv::Mat firstImage, cv::Mat secondImage, cv::Mat initialGuess) {
     cv::Mat firstGrayMat, secondGrayMat;
     cv::cvtColor(firstImage, firstGrayMat, cv::COLOR_BGR2GRAY);
     cv::cvtColor(secondImage, secondGrayMat, cv::COLOR_BGR2GRAY);
     cv::Mat flow;
-    cv::calcOpticalFlowFarneback(firstGrayMat, secondGrayMat, flow, 0.5, 10, 15, 1, 1, 1, 0); /// nice defaults: 0.5, 3, 15, 3, 5, 1.2, 0
+    if (initialGuess.empty()) {
+        cv::calcOpticalFlowFarneback(firstGrayMat, secondGrayMat, flow, 0.5, 10, 15, 1, 5, 1.5, 0); /// nice defaults: 0.5, 3, 15, 3, 5, 1.2, 0
+    } else {
+        cv::calcOpticalFlowFarneback(firstGrayMat, secondGrayMat, initialGuess, 0.5, 10, 15, 1, 1, 1, cv::OPTFLOW_USE_INITIAL_FLOW); /// nice defaults: 0.5, 3, 15, 3, 5, 1.2, 0
+        initialGuess.copyTo(flow);
+    }
     return flow;
 }
 
